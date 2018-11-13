@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/layout_include_header"
+    android:layout_width="match_parent"
+    android:layout_height="45dp"
+    android:background="@color/white">
+
+    <LinearLayout
+        android:layout_height="match_parent"
+        android:orientation="horizontal"
+        android:layout_width="wrap_content"
+        android:paddingLeft="20dp">
+
+        <ImageView
+            android:id="@+id/img_back_iclude_header"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:src="@drawable/img_back_write" />
+
+        <TextView
+            android:paddingLeft="@dimen/dp_10"
+            android:id="@+id/tv_left_include_header"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:gravity="center"
+            android:textColor="@color/white"
+            android:textSize="16sp" />
+    </LinearLayout>
+
+    <TextView
+        android:id="@+id/tv_title_include_header"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:gravity="center"
+        android:textColor="@color/white"
+        android:textSize="20sp" />
+
+    <TextView
+        android:id="@+id/tv_right_include_header"
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        android:layout_alignParentRight="true"
+        android:layout_marginRight="15dp"
+        android:gravity="center"
+        android:textColor="@color/white"
+        android:textSize="16sp" />
+
+    <TextView
+        android:id="@+id/tv_right2_include_header"
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        android:layout_marginRight="15dp"
+        android:layout_toLeftOf="@id/tv_right_include_header"
+        android:background="@color/white"
+        android:gravity="center"
+        android:textSize="16sp" />
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="0.5dp"
+        android:layout_alignParentBottom="true"
+        android:background="@color/black" />
+</RelativeLayout>

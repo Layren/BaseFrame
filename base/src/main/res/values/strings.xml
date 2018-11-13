@@ -1,0 +1,28 @@
+<resources>
+
+    <string name="app_name">JanlentBP</string>
+    <string name="dialogloading">数据加载中</string>
+
+    <!-- 相册多选 -->
+    <string name="select_album">选择相册</string>
+    <string name="select_image">选择图片</string>
+    <string name="latest_image">最近照片</string>
+    <string name="photo_album">相册</string>
+    <string name="main_confirm">确定</string>
+    <string name="main_cancel">取消</string>
+    <string name="main_back">返回</string>
+    <string name="cancle">取消</string>
+    <string name="title">请选择时间</string>
+    <string name="commit">确定</string>
+    <string name="year">年</string>
+    <string name="month">月</string>
+    <string name="day">日</string>
+    <string name="hour">时</string>
+    <string name="minute">分</string>
+
+    <string name="select_date">选择日期</string>
+    <string name="current_date">当前日期</string>
+    <string name="select_time">选择时间</string>
+    <string name="current_time">当前时间</string>
+
+</resources>
