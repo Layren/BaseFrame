@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="white">#ffffffff</color>
+    <color name="black">#ff000000</color>
+    <color name="red">#ff0000</color>
+    <color name="blue">#ff0080ff</color>
+    <color name="transparent">#0000</color>
+    <!-- 字体颜色 -->
+    <color name="text">#f666</color>
+    <color name="color_content">#ff7e7e7e</color>
+    <color name="color_split_line">#ffCDCDC1</color>
+    <!-- 返回按钮 字体颜色 -->
+    <color name="back_color_noclick">#ffff</color>
+    <color name="back_color_click">#8fff</color>
+    <color name="gray_bg">#cccccc</color>
+    <!-- 相册多选所需颜色———————————————————————— -->
+
+</resources>
