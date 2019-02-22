@@ -40,9 +40,9 @@ public class RefreshViewMultiItemAdapter<T extends MultiModel> extends BaseMulti
     }
 
     @Override
-    protected void convert(BaseViewHolder helper, MultiModel item) {
+    protected void convert(BaseViewHolder holder, MultiModel item) {
         if (listener != null) {
-            listener.setHolder(helper, item, helper.getItemViewType());
+            listener.setHolder(holder, item, holder.getItemViewType());
         }
     }
 

@@ -9,6 +9,8 @@ import com.chad.library.adapter.base.entity.MultiItemEntity;
  */
 public class MultiModel implements MultiItemEntity {
     private int itemType;
+    // item宽度.默认为1
+    private int spanSize = 1;
 
     @Override
     public int getItemType() {
@@ -17,5 +19,13 @@ public class MultiModel implements MultiItemEntity {
 
     public void setItemType(int itemType) {
         this.itemType = itemType;
+    }
+
+    public int getSpanSize() {
+        return spanSize;
+    }
+
+    public void setSpanSize(int spanSize) {
+        this.spanSize = spanSize;
     }
 }

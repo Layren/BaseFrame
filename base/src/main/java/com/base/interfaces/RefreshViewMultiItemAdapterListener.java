@@ -9,5 +9,5 @@ import com.chad.library.adapter.base.BaseViewHolder;
  * @TODO :多布局RecyclerView 布局监听
  */
 public interface RefreshViewMultiItemAdapterListener {
-    void setHolder(BaseViewHolder helper, MultiModel item, int itemType);
+    void setHolder(BaseViewHolder holder, MultiModel item, int itemType);
 }

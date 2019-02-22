@@ -6,6 +6,7 @@ import android.graphics.Color;
 import android.media.AudioManager;
 import android.media.SoundPool;
 import android.os.Build;
+import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
@@ -19,6 +20,7 @@ import com.base.util.PermissionManager;
 import com.base.view.ItemDecoration;
 import com.base.view.NestedRecyclerView;
 import com.base.view.RefreshRecyclerView;
+import com.chad.library.adapter.base.BaseQuickAdapter;
 import com.chad.library.adapter.base.BaseViewHolder;
 
 import java.util.ArrayList;
@@ -44,26 +46,25 @@ public class MainActivity extends BaseActivity {
         return R.layout.activity_main;
     }
 
+
     @Override
     protected void initView() {
         boolean isStorage = PermissionManager.Query(this, PermissionManager.STORAGE);
         if (!isStorage) {
             PermissionManager.Granted(this, PermissionManager.STORAGE, 1);
         }
-        findViewById(R.id.text_v).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                goActivity(AddPhotoActivity.class);
+        findViewById(R.id.text_v).setOnClickListener(v -> goActivity(AddPhotoActivity.class));
+        recyclerView.setMultiAdapter(((holder, item, itemType) -> {
+            MultiItemMudle mudle = (MultiItemMudle) item;
+            switch (itemType) {
+                case 0:
+                    holder.setText(R.id.textRed, mudle.getText());
+                    break;
+                case 1:
+                    holder.setText(R.id.textBlue, mudle.getText());
+                    break;
             }
-        });
-        recyclerView.setAdapter(R.layout.red, new RefreshViewAdapterListener() {
-            @Override
-            public void setHolder(int layoutResId, BaseViewHolder holder, Object item) {
-                holder.setText(R.id.textRed, (String) item);
-                holder.setBackgroundColor(R.id.textRed, Color.WHITE);
-                holder.setTextColor(R.id.textRed, Color.RED);
-            }
-        });
+        }), R.layout.red, R.layout.blue);
         recyclerView.addItemDecoration(new ItemDecoration(1, Color.BLUE));
         List<Object> list = new ArrayList<>();
         list.add("11111111");
@@ -73,7 +74,19 @@ public class MainActivity extends BaseActivity {
         list.add("12345555");
         list.add("12345666");
         list.add("12345677 ");
-        recyclerView.setData(list);
+        List<MultiItemMudle> list2 = new ArrayList<>();
+        for (int i = 0; i < 11; i++) {
+            MultiItemMudle mudle = new MultiItemMudle();
+            if (i < 1 || i == 5) {
+                mudle.setItemType(0);
+                mudle.setSpanSize(3);
+            } else
+                mudle.setItemType(1);
+            mudle.setText("====" + i + "====");
+            list2.add(mudle);
+        }
+        recyclerView.setMulitData(list2);
+        recyclerView.setLoadMoreEnd();
         RefreshViewAdapter adapter = new RefreshViewAdapter(R.layout.blue, new RefreshViewAdapterListener() {
             @Override
             public void setHolder(int layoutResId, BaseViewHolder holder, Object item) {

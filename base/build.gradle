@@ -21,6 +21,10 @@ android {
     packagingOptions {
         exclude 'META-INF/LICENSE'
     }
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
 }
 
 dependencies {
@@ -38,7 +42,6 @@ dependencies {
     api 'com.gyf.barlibrary:barlibrary:2.3.0'
     api 'com.google.code.gson:gson:2.8.5'
     api 'com.squareup.picasso:picasso-pollexor:2.71828'
-    api 'com.android.support.constraint:constraint-layout:2.0.0-alpha2'
     api 'com.google.zxing:core:3.3.3'
     api files('libs/scanner.jar')
 }

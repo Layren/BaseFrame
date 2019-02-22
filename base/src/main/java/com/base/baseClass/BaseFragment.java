@@ -37,7 +37,7 @@ import java.util.Map.Entry;
 import butterknife.ButterKnife;
 import butterknife.Unbinder;
 
-public abstract class BaseFragment extends Fragment implements SNRequestDataListener, RefreshViewAdapterListener, RefreshViewMultiItemAdapterListener {
+public abstract class BaseFragment extends ImmersionFragment implements SNRequestDataListener, RefreshViewAdapterListener, RefreshViewMultiItemAdapterListener {
 
     protected Dialog loadingDialog;
     protected int screenWidth;
@@ -122,6 +122,14 @@ public abstract class BaseFragment extends Fragment implements SNRequestDataList
      * 初始化
      */
     protected abstract void initView();
+    /**
+     * 返回状态栏沉浸ViewId 默认为0
+     *
+     * @return
+     */
+    protected int getStatusBarView() {
+        return 0;
+    }
 
     /**
      * 设置单布局RefreshRecyclerView （若设置，需重写 #setHolder 来填充布局）
@@ -230,12 +238,17 @@ public abstract class BaseFragment extends Fragment implements SNRequestDataList
     }
 
     protected void immersionInit() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP)
-            ImmersionBar.with(getActivity())
-                    .statusBarDarkFont(true)
-                    .navigationBarColor(BPConfig.APP_THEME_COLOR_VALUE)
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP){
+
+            ImmersionBar immersionBar = ImmersionBar.with(this);
+            if (getStatusBarView() != 0)
+                immersionBar.titleBar(getStatusBarView());
+            else
+                immersionBar.navigationBarColor(BPConfig.APP_THEME_COLOR_VALUE).fitsSystemWindows(true);
+
+            immersionBar.keyboardEnable(true)
                     .init();
-    }
+    }}
 
 
     protected void showToast(String msg) {

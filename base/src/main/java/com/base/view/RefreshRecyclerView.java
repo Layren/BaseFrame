@@ -18,6 +18,7 @@ import com.base.model.MultiModel;
 import com.chad.library.adapter.base.BaseQuickAdapter;
 import com.base.R;
 import com.chad.library.adapter.base.entity.MultiItemEntity;
+import com.chad.library.adapter.base.loadmore.LoadMoreView;
 
 import java.util.List;
 
@@ -42,8 +43,7 @@ public class RefreshRecyclerView extends LinearLayout {
     public RefreshRecyclerView(Context context) {
         super(context);
         this.context = context;
-        LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-        view = inflater.inflate(R.layout.include_recyclerview, this);
+        view = LayoutInflater.from(context).inflate(R.layout.include_recyclerview, this);
         init();
     }
 
@@ -58,7 +58,16 @@ public class RefreshRecyclerView extends LinearLayout {
         init();
     }
 
+    /**
+     * @since 1.1
+     * 请使用@getRecyclerView();方法
+     */
+    @Deprecated
     public RecyclerView getReView() {
+        return reView;
+    }
+
+    public RecyclerView getRecyclerView() {
         return reView;
     }
 
@@ -66,7 +75,7 @@ public class RefreshRecyclerView extends LinearLayout {
         if (adapter != null)
             return adapter;
         if (multiAdapter != null)
-            return adapter;
+            return multiAdapter;
         return null;
     }
 
@@ -86,24 +95,16 @@ public class RefreshRecyclerView extends LinearLayout {
         manager.setOrientation(GridLayoutManager.VERTICAL);
         manager.setSmoothScrollbarEnabled(true);
         reView.setLayoutManager(manager);
-        reView.addOnScrollListener(new RecyclerView.OnScrollListener() {
-            @Override
-            public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
-                super.onScrollStateChanged(recyclerView, newState);
-                if (newState == RecyclerView.SCROLL_STATE_IDLE) {
-                    int lastVisiblePosition = manager.findLastVisibleItemPosition();
-                    if (lastVisiblePosition >= manager.getItemCount() - 1) {
-                        if (listener != null)
-                            listener.onLoadMore();
-                    }
-                }
-            }
-        });
     }
 
     public void setAdapter(int layoutId, RefreshViewAdapterListener listener) {
         adapter = new RefreshViewAdapter(layoutId, listener);
         setAdapter(adapter);
+        adapter.setEnableLoadMore(true);
+        adapter.setOnLoadMoreListener(() -> {
+            if (RefreshRecyclerView.this.listener != null)
+                RefreshRecyclerView.this.listener.onLoadMore();
+        }, reView);
     }
 
     /**
@@ -119,6 +120,17 @@ public class RefreshRecyclerView extends LinearLayout {
     public void setMultiAdapter(RefreshViewMultiItemAdapterListener listener, int... layoutIds) {
         multiAdapter = new RefreshViewMultiItemAdapter(listener, layoutIds);
         setAdapter(multiAdapter);
+        multiAdapter.setEnableLoadMore(true);
+        multiAdapter.setOnLoadMoreListener(() -> {
+            if (RefreshRecyclerView.this.listener != null)
+                RefreshRecyclerView.this.listener.onLoadMore();
+        }, reView);
+        multiAdapter.setSpanSizeLookup((gridLayoutManager, position) -> {
+            MultiModel model = (MultiModel) getItem(position);
+            if (model.getSpanSize() > gridLayoutManager.getSpanCount())
+                return gridLayoutManager.getSpanCount();
+            return model.getSpanSize();
+        });
     }
 
     public void setOnRefreshListener(OnRefreshListener listener) {
@@ -145,12 +157,25 @@ public class RefreshRecyclerView extends LinearLayout {
             if (listener != null)
                 listener.onRefresh();
         }
-        reLayout.post(new Runnable() {
-            @Override
-            public void run() {
-                reLayout.setRefreshing(refreshing);
-            }
-        });
+        if (adapter != null)
+            adapter.setEnableLoadMore(true);
+        if (multiAdapter != null)
+            multiAdapter.setEnableLoadMore(true);
+        reLayout.post(() -> reLayout.setRefreshing(refreshing));
+    }
+
+    public void setLoadMoreEnd() {
+        if (adapter != null)
+            adapter.setEnableLoadMore(false);
+        if (multiAdapter != null)
+            multiAdapter.setEnableLoadMore(false);
+    }
+
+    public void setLoadMoreView(LoadMoreView view) {
+        if (adapter != null)
+            adapter.setLoadMoreView(view);
+        if (multiAdapter != null)
+            multiAdapter.setLoadMoreView(view);
     }
 
     public void setSchemeColor(int... colors) {

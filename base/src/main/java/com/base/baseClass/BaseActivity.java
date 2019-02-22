@@ -103,6 +103,15 @@ public abstract class BaseActivity extends AppCompatActivity implements SNReques
      */
     protected abstract void initView();
 
+    /**
+     * 返回状态栏沉浸ViewId 默认为0
+     *
+     * @return
+     */
+    protected int getStatusBarView() {
+        return 0;
+    }
+
     protected void initView(Bundle savedInstanceState) {
         initView();
     }
@@ -182,18 +191,18 @@ public abstract class BaseActivity extends AppCompatActivity implements SNReques
 
     }
 
-    protected void setFragment() {
-        isFragment = true;
-        ImmersionBar.with(this).init();
-    }
-
     @Override
     public void setContentView(View view) {
         super.setContentView(view);
         ButterKnife.bind(this, view);
         if (!isFragment && Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            ImmersionBar.with(this).statusBarColor(BPConfig.APP_THEME_COLOR_VALUE)
-                    .fitsSystemWindows(true)
+            ImmersionBar immersionBar = ImmersionBar.with(this);
+            if (getStatusBarView() != 0)
+                immersionBar.titleBar(getStatusBarView());
+            else
+                immersionBar.statusBarColor(BPConfig.APP_THEME_COLOR_VALUE).fitsSystemWindows(true);
+
+            immersionBar.keyboardEnable(true)
                     .init();
         }
         getSupportActionBar().hide();
@@ -203,10 +212,16 @@ public abstract class BaseActivity extends AppCompatActivity implements SNReques
     public void setContentView(int layoutResID) {
         super.setContentView(layoutResID);
         ButterKnife.bind(this);
-        if (!isFragment && Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP)
-            ImmersionBar.with(this).statusBarColor(BPConfig.APP_THEME_COLOR_VALUE)
-                    .fitsSystemWindows(true)
+        if (!isFragment && Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            ImmersionBar immersionBar = ImmersionBar.with(this);
+            if (getStatusBarView() != 0)
+                immersionBar.titleBar(getStatusBarView());
+            else
+                immersionBar.statusBarColor(BPConfig.APP_THEME_COLOR_VALUE).fitsSystemWindows(true);
+
+            immersionBar.keyboardEnable(true)
                     .init();
+        }
         getSupportActionBar().hide();
         title = findViewById(R.id.tv_title_include_header);
         layout = findViewById(R.id.layout_include_header);
@@ -214,22 +229,11 @@ public abstract class BaseActivity extends AppCompatActivity implements SNReques
             layout.setBackgroundColor(BPConfig.APP_THEME_COLOR);
         back = findViewById(R.id.img_back_iclude_header);
         if (back != null) {
-            back.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    finishAnim();
-                }
-            });
+            back.setOnClickListener(v -> finishAnim());
         }
         leftTv = findViewById(R.id.tv_left_include_header);
         if (leftTv != null) {
-//            leftTv.setText("返回");
-            leftTv.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    finishAnim();
-                }
-            });
+            leftTv.setOnClickListener(v -> finishAnim());
         }
         rightTv = findViewById(R.id.tv_right_include_header);
         rightTv2 = findViewById(R.id.tv_right2_include_header);
@@ -249,14 +253,6 @@ public abstract class BaseActivity extends AppCompatActivity implements SNReques
     protected void onPause() {
         localBroadcastManager.unregisterReceiver(broadcastReceiver);
         super.onPause();
-    }
-
-    public void switchLanguage(Locale locale) {
-        Resources resources = getResources();// 获得res资源对象
-        Configuration config = resources.getConfiguration();// 获得设置对象
-        DisplayMetrics dm = resources.getDisplayMetrics();// 获得屏幕参数：主要是分辨率，像素�??
-        config.locale = locale; //
-        resources.updateConfiguration(config, dm);
     }
 
     /**
