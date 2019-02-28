@@ -11,8 +11,8 @@ import android.view.View;
 
 /**
  * Created by GaoTing on 2018/1/2.
- *
- * @TODO :分割线
+ * <p>
+ * Explain :分割线
  */
 
 public class ItemDecoration extends RecyclerView.ItemDecoration {
@@ -68,6 +68,7 @@ public class ItemDecoration extends RecyclerView.ItemDecoration {
                     outRect.right = dividerHeight;
                     outRect.bottom = dividerHeight;
                     break;
+                default:
             }
         } else {
             final int position = parent.getChildAdapterPosition(view);
@@ -119,11 +120,6 @@ public class ItemDecoration extends RecyclerView.ItemDecoration {
         } else {
             for (int i = 0; i < childCount; i++) {
                 View view = parent.getChildAt(i);
-                final RecyclerView.LayoutParams params = (RecyclerView.LayoutParams) view.getLayoutParams();
-                //将带有颜色的分割线处于中间位置
-                final float centerLeft = (layoutManager.getLeftDecorationWidth(view)) / 2;
-                final float centerTop = (layoutManager.getTopDecorationHeight(view)) / 2;
-
                 float top = view.getTop();
                 float bottom = view.getBottom();
                 float left = view.getLeft();
@@ -161,11 +157,6 @@ public class ItemDecoration extends RecyclerView.ItemDecoration {
             }
         }
 
-    }
-
-    @Override
-    public void onDrawOver(Canvas c, RecyclerView parent, RecyclerView.State state) {
-        super.onDrawOver(c, parent, state);
     }
 
 

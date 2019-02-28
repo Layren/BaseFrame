@@ -301,45 +301,28 @@ public class CustomDatePicker {
     }
 
     private void addListener() {
-        year_pv.setOnSelectListener(new DatePickerView.onSelectListener() {
-            @Override
-            public void onSelect(String text) {
-                selectedCalender.set(Calendar.YEAR, Integer.parseInt(text));
-                monthChange();
-            }
+        year_pv.setOnSelectListener(text -> {
+            selectedCalender.set(Calendar.YEAR, Integer.parseInt(text));
+            monthChange();
         });
 
-        month_pv.setOnSelectListener(new DatePickerView.onSelectListener() {
-            @Override
-            public void onSelect(String text) {
-                selectedCalender.set(Calendar.DAY_OF_MONTH, 1);
-                selectedCalender.set(Calendar.MONTH, Integer.parseInt(text) - 1);
-                dayChange();
-            }
+        month_pv.setOnSelectListener(text -> {
+            selectedCalender.set(Calendar.DAY_OF_MONTH, 1);
+            selectedCalender.set(Calendar.MONTH, Integer.parseInt(text) - 1);
+            dayChange();
         });
 
-        day_pv.setOnSelectListener(new DatePickerView.onSelectListener() {
-            @Override
-            public void onSelect(String text) {
-                selectedCalender.set(Calendar.DAY_OF_MONTH, Integer.parseInt(text));
-                hourChange();
-            }
+        day_pv.setOnSelectListener(text -> {
+            selectedCalender.set(Calendar.DAY_OF_MONTH, Integer.parseInt(text));
+            hourChange();
         });
 
-        hour_pv.setOnSelectListener(new DatePickerView.onSelectListener() {
-            @Override
-            public void onSelect(String text) {
-                selectedCalender.set(Calendar.HOUR_OF_DAY, Integer.parseInt(text));
-                minuteChange();
-            }
+        hour_pv.setOnSelectListener(text -> {
+            selectedCalender.set(Calendar.HOUR_OF_DAY, Integer.parseInt(text));
+            minuteChange();
         });
 
-        minute_pv.setOnSelectListener(new DatePickerView.onSelectListener() {
-            @Override
-            public void onSelect(String text) {
-                selectedCalender.set(Calendar.MINUTE, Integer.parseInt(text));
-            }
-        });
+        minute_pv.setOnSelectListener(text -> selectedCalender.set(Calendar.MINUTE, Integer.parseInt(text)));
     }
 
     private void monthChange() {
@@ -363,12 +346,7 @@ public class CustomDatePicker {
         month_pv.setSelected(0);
         executeAnimator(month_pv);
 
-        month_pv.postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                dayChange();
-            }
-        }, 100);
+        month_pv.postDelayed(() -> dayChange(), 100);
     }
 
     private void dayChange() {
@@ -393,12 +371,7 @@ public class CustomDatePicker {
         day_pv.setSelected(0);
         executeAnimator(day_pv);
 
-        day_pv.postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                hourChange();
-            }
-        }, 100);
+        day_pv.postDelayed(() -> hourChange(), 100);
     }
 
     private void hourChange() {
@@ -426,12 +399,7 @@ public class CustomDatePicker {
             executeAnimator(hour_pv);
         }
 
-        hour_pv.postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                minuteChange();
-            }
-        }, 100);
+        hour_pv.postDelayed(() -> minuteChange(), 100);
     }
 
     private void minuteChange() {
@@ -477,11 +445,11 @@ public class CustomDatePicker {
         minute_pv.setCanScroll(minute.size() > 1 && (scrollUnits & SCROLL_TYPE.MINUTE.value) == SCROLL_TYPE.MINUTE.value);
     }
 
-    private int disScrollUnit(SCROLL_TYPE... scroll_types) {
-        if (scroll_types == null || scroll_types.length == 0) {
+    private int disScrollUnit(SCROLL_TYPE... scrollTypes) {
+        if (scrollTypes == null || scrollTypes.length == 0) {
             scrollUnits = SCROLL_TYPE.HOUR.value + SCROLL_TYPE.MINUTE.value;
         } else {
-            for (SCROLL_TYPE scroll_type : scroll_types) {
+            for (SCROLL_TYPE scroll_type : scrollTypes) {
                 scrollUnits ^= scroll_type.value;
             }
         }
@@ -490,9 +458,6 @@ public class CustomDatePicker {
 
     public void show(String time) {
         if (canAccess) {
-//            if (!isValidDate(time, "yyyy-MM-dd HH:mm")) {
-//                time = Tool.getCurTime("yyyy-MM-dd HH:mm");
-//            }
             if (startCalendar.getTime().getTime() < endCalendar.getTime().getTime()) {
                 canAccess = true;
                 initParameter();

@@ -15,6 +15,7 @@ import com.base.R;
 import com.base.net.MCBaseAPI;
 
 import java.util.ArrayList;
+import java.util.List;
 
 /**
  * 图片查看器
@@ -75,15 +76,14 @@ public class ImagePagerActivity extends BaseActivity {
     @SuppressLint("MissingSuperCall")
     @Override
     public void onSaveInstanceState(Bundle outState) {
-//        super.onSaveInstanceState(outState);
         outState.putInt(BPConfig.STATE_POSITION, mPager.getCurrentItem());
     }
 
     private class ImagePagerAdapter extends FragmentStatePagerAdapter {
 
-        public ArrayList<PhotoItem> fileList;
+        private List<PhotoItem> fileList;
 
-        public ImagePagerAdapter(FragmentManager fm, ArrayList<PhotoItem> fileList) {
+        public ImagePagerAdapter(FragmentManager fm, List<PhotoItem> fileList) {
             super(fm);
             this.fileList = fileList;
         }

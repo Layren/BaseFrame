@@ -15,15 +15,15 @@ import java.util.List;
  * @author luopeng (luopeng@staff.sina.com.cn)
  */
 public class UrlParameters {
-    private ArrayList<String> mKeys = new ArrayList<String>();
-    private ArrayList<String> mValues = new ArrayList<String>();
-    private ArrayList<String> fileKeys = new ArrayList<String>();
+    private ArrayList<String> mKeys = new ArrayList<>();
+    private ArrayList<String> mValues = new ArrayList<>();
+    private ArrayList<String> fileKeys = new ArrayList<>();
     private ArrayList<List<Object>> fileValues = new ArrayList<>();
     private ArrayList<FileType> fileTypes = new ArrayList<>();
-    private ArrayList<String> HeaderKeys = new ArrayList<String>();
-    private ArrayList<String> HeaderValues = new ArrayList<String>();
+    private ArrayList<String> headerKeys = new ArrayList<>();
+    private ArrayList<String> headerValues = new ArrayList<>();
     private String url = "";
-    private boolean NullFile;
+    private boolean nullFile;
 
 
     public enum FileType {
@@ -77,7 +77,6 @@ public class UrlParameters {
     }
 
 
-
     private int getLocation(String key) {
         if (this.mKeys.contains(key)) {
             return this.mKeys.indexOf(key);
@@ -104,8 +103,7 @@ public class UrlParameters {
 
     private String getValue(int location) {
         if (location >= 0 && location < this.mKeys.size()) {
-            String rlt = this.mValues.get(location);
-            return rlt;
+            return this.mValues.get(location);
         } else {
             return null;
         }
@@ -160,7 +158,7 @@ public class UrlParameters {
             if (index >= 0 && index < this.fileKeys.size())
                 return this.fileValues.get(index);
         }
-        return null;
+        return new ArrayList<>();
     }
 
     FileType getFileType(String key) {
@@ -173,28 +171,28 @@ public class UrlParameters {
     }
 
     public void addHeader(String key, String value) {
-        HeaderKeys.add(key);
-        HeaderValues.add(value);
+        headerKeys.add(key);
+        headerValues.add(value);
     }
 
     ArrayList<String> getHanderKeys() {
-        return HeaderKeys;
+        return headerKeys;
     }
 
     String getHanderValue(String key) {
-        if (this.HeaderKeys.contains(key)) {
-            int index = this.HeaderKeys.indexOf(key);
-            if (index >= 0 && index < this.HeaderKeys.size())
-                return this.HeaderValues.get(index);
+        if (this.headerKeys.contains(key)) {
+            int index = this.headerKeys.indexOf(key);
+            if (index >= 0 && index < this.headerKeys.size())
+                return this.headerValues.get(index);
         }
         return "";
     }
 
     public void setNullFile() {
-        NullFile = true;
+        nullFile = true;
     }
 
     boolean isNullFile() {
-        return NullFile;
+        return nullFile;
     }
 }

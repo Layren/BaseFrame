@@ -10,7 +10,6 @@ import android.os.Bundle;
 import android.provider.MediaStore;
 import android.view.KeyEvent;
 import android.view.View;
-import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.GridView;
 import android.widget.RelativeLayout;
@@ -34,16 +33,17 @@ public class PhotoWallActivity extends Activity {
 
     private String currentFolder = null;
     private RelativeLayout layout;
+    private boolean isSign;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.photo_wall);
-
+        isSign = getIntent().getBooleanExtra("sign", isSign);
         titleTV = findViewById(R.id.topbar_title_tv);
         titleTV.setText(R.string.latest_image);
         layout = findViewById(R.id.ll_comm_topbar);
-        layout.setBackgroundColor(BPConfig.APP_THEME_COLOR);
+        layout.setBackgroundColor(BPConfig.appThemeColor);
 
         Button backBtn = findViewById(R.id.topbar_left_btn);
         Button confirmBtn = findViewById(R.id.topbar_right_btn);
@@ -55,46 +55,34 @@ public class PhotoWallActivity extends Activity {
         mPhotoWall = findViewById(R.id.photo_wall_grid);
         list = getLatestImagePaths(100);
         adapter = new PhotoWallAdapter(this, list);
+        adapter.setSign(isSign);
         mPhotoWall.setAdapter(adapter);
-        mPhotoWall.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                if (PickPhoto.isSign()) {
-                    ArrayList<String> paths = new ArrayList<>();
-                    paths.add(list.get(position));
-                    Intent intent = new Intent();
-                    intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-                    intent.putExtra("code", BPConfig.BACK_CODE);
-                    intent.putStringArrayListExtra("paths", paths);
-                    // startActivity(intent);
-                    setResult(BPConfig.PIC_SELECT, intent);
-                    finish();
-                }
-            }
-        });
-        if (PickPhoto.isSign()) {
-            confirmBtn.setVisibility(View.GONE);
-        }
-        confirmBtn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                ArrayList<String> paths = getSelectImagePaths();
-
+        mPhotoWall.setOnItemClickListener((parent, view, position, id) -> {
+            if (isSign) {
+                ArrayList<String> paths = new ArrayList<>();
+                paths.add(list.get(position));
                 Intent intent = new Intent();
                 intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-                intent.putExtra("code", paths != null ? BPConfig.BACK_CODE : 101);
+                intent.putExtra("code", BPConfig.BACK_CODE);
                 intent.putStringArrayListExtra("paths", paths);
-                // startActivity(intent);
                 setResult(BPConfig.PIC_SELECT, intent);
                 finish();
             }
         });
-        backBtn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                backAction();
-            }
+        if (isSign) {
+            confirmBtn.setVisibility(View.GONE);
+        }
+        confirmBtn.setOnClickListener(v -> {
+            ArrayList<String> paths = getSelectImagePaths();
+
+            Intent intent = new Intent();
+            intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+            intent.putExtra("code", paths != null ? BPConfig.BACK_CODE : 101);
+            intent.putStringArrayListExtra("paths", paths);
+            setResult(BPConfig.PIC_SELECT, intent);
+            finish();
         });
+        backBtn.setOnClickListener(v -> backAction());
 
     }
 
@@ -103,8 +91,12 @@ public class PhotoWallActivity extends Activity {
         Intent intent = new Intent(this, PhotoAlbumActivity.class);
         intent.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
 
-        if (list != null && list.size() > 0) {
-            intent.putExtra("latest_count", getLatestImagePaths(100).size());
+        if (list != null && !list.isEmpty()) {
+            ArrayList<String> lists = getLatestImagePaths(100);
+            if (lists != null)
+                intent.putExtra("latest_count", lists.size());
+            else
+                intent.putExtra("latest_count", 0);
             intent.putExtra("latest_first_img", list.get(0));
         }
 
@@ -139,9 +131,9 @@ public class PhotoWallActivity extends Activity {
         File folder = new File(folderPath);
         String[] allFileNames = folder.list();
         if (allFileNames == null || allFileNames.length == 0) {
-            return null;
+            return new ArrayList<>();
         }
-        ArrayList<String> imageFilePaths = new ArrayList<String>();
+        ArrayList<String> imageFilePaths = new ArrayList<>();
         for (int i = allFileNames.length - 1; i >= 0; i--) {
             if (Tool.isImage(allFileNames[i])) {
                 imageFilePaths.add(folderPath + File.separator + allFileNames[i]);
@@ -153,11 +145,11 @@ public class PhotoWallActivity extends Activity {
     private ArrayList<String> getLatestImagePaths(int maxCount) {
         Uri mImageUri = MediaStore.Images.Media.EXTERNAL_CONTENT_URI;
 
-        String key_MIME_TYPE = MediaStore.Images.Media.MIME_TYPE;
-        String key_DATA = MediaStore.Images.Media.DATA;
+        String keyMimeType = MediaStore.Images.Media.MIME_TYPE;
+        String keyData = MediaStore.Images.Media.DATA;
 
         ContentResolver mContentResolver = getContentResolver();
-        Cursor cursor = mContentResolver.query(mImageUri, new String[]{key_DATA}, key_MIME_TYPE + "=? or " + key_MIME_TYPE + "=? or " + key_MIME_TYPE + "=?",
+        Cursor cursor = mContentResolver.query(mImageUri, new String[]{keyData}, keyMimeType + "=? or " + keyMimeType + "=? or " + keyMimeType + "=?",
                 new String[]{"image/jpg", "image/jpeg", "image/png"}, MediaStore.Images.Media.DATE_MODIFIED);
 
         ArrayList<String> latestImagePaths = null;
@@ -180,10 +172,10 @@ public class PhotoWallActivity extends Activity {
 
     private ArrayList<String> getSelectImagePaths() {
         List<Integer> selects = adapter.getSelects();
-        if (selects.size() == 0) {
-            return null;
+        if (selects.isEmpty()) {
+            return new ArrayList<>();
         }
-        ArrayList<String> selectedImageList = new ArrayList<String>();
+        ArrayList<String> selectedImageList = new ArrayList<>();
         for (int i : selects) {
             selectedImageList.add(list.get(i));
         }
@@ -193,28 +185,24 @@ public class PhotoWallActivity extends Activity {
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent intent) {
         super.onActivityResult(requestCode, resultCode, intent);
-        switch (requestCode) {
-            case BPConfig.PHOTO_ALBUM:
-                if (intent == null) {
-                    setResult(BPConfig.PIC_SELECT, null);
-                    finish();
-                    break;
+        if (requestCode == BPConfig.PHOTO_ALBUM) {
+            if (intent == null) {
+                setResult(BPConfig.PIC_SELECT, null);
+                finish();
+                return;
+            }
+            overridePendingTransition(R.anim.in_from_right, R.anim.out_from_left);
+            int code = intent.getIntExtra("code", -1);
+            if (code == BPConfig.BACK_CODE) {
+                String folderPath = intent.getStringExtra("folderPath");
+                if (folderPath != null && !folderPath.equals(currentFolder)) {
+                    currentFolder = folderPath;
+                    updateView(BPConfig.BACK_CODE, currentFolder);
                 }
-                overridePendingTransition(R.anim.in_from_right, R.anim.out_from_left);
-                int code = intent.getIntExtra("code", -1);
-                switch (code) {
-                    case BPConfig.BACK_CODE:
-                        String folderPath = intent.getStringExtra("folderPath");
-                        if (folderPath != null && !folderPath.equals(currentFolder)) {
-                            currentFolder = folderPath;
-                            updateView(BPConfig.BACK_CODE, currentFolder);
-                        }
-                        break;
-                    case 200:
-                        updateView(200, null);
-                        break;
-                }
-                break;
+            } else if (code == 200) {
+                updateView(200, "");
+            }
+
         }
 
     }

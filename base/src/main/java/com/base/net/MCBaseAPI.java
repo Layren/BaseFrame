@@ -14,13 +14,13 @@ import java.lang.reflect.Type;
 
 public class MCBaseAPI extends SNNetAPI {
 
-    public static String API_SERVER;
-    public static String API_FILES;
+    private static final String API_SERVER;
+    public static final String API_FILES;
     private Type type;
 
     static {
-        API_SERVER = BPApplication.getNET_PATH();
-        API_FILES = BPApplication.getNETFILE_PATH();
+        API_SERVER = BPApplication.getNetPath();
+        API_FILES = BPApplication.getNetFilePath();
     }
 
     public MCBaseAPI(SNRequestDataListener listener, Type type) {
@@ -38,14 +38,16 @@ public class MCBaseAPI extends SNNetAPI {
 
     @SuppressWarnings("unchecked")
     @Override
-    public void parseData(String response, int whichAPI) throws Exception {
+    public void parseData(String response, int whichAPI) {
         Gson gson = new Gson();
-        JSONObject rootObject = new JSONObject(response);
-        String responseObj = rootObject.getString("data");
-        if (responseObj.startsWith("[")) {
-            response.replaceFirst("data", "listData");
-        }
+        JSONObject rootObject = null;
+        String responseObj = null;
         try {
+            rootObject = new JSONObject(response);
+            responseObj = rootObject.getString("data");
+            if (responseObj.startsWith("[")) {
+                response = response.replaceFirst("data", "listData");
+            }
             this.base = gson.fromJson(response, type);
             this.base.setResultMsg(response);
             this.base.setDatas(responseObj);

@@ -8,7 +8,6 @@ import android.content.pm.PackageManager.NameNotFoundException;
 import android.os.Build;
 import android.os.Environment;
 import android.os.Looper;
-import android.text.TextUtils;
 import android.util.Log;
 import android.view.Gravity;
 import android.widget.Toast;
@@ -36,11 +35,11 @@ public class CrashHandler implements UncaughtExceptionHandler {
     // 系统默认的UncaughtException处理类
     private UncaughtExceptionHandler mDefaultHandler;
     // CrashHandler实例
-    private static CrashHandler INSTANCE;
+    private static CrashHandler instance;
     // 程序的Context对象
     private Context mContext;
     // 用来存储设备信息和异常信息
-    private Map<String, String> infos = new HashMap<String, String>();
+    private Map<String, String> infos = new HashMap<>();
     // 保存异常信息文件的路径
     private String path;
     // 用于格式化日期,作为日志文件名的一部分
@@ -55,10 +54,10 @@ public class CrashHandler implements UncaughtExceptionHandler {
      *
      * @param path 保存异常信息文件的路径
      */
-    public static CrashHandler getInstance(String path) {
-        if (INSTANCE == null)
-            INSTANCE = new CrashHandler(path);
-        return INSTANCE;
+    public synchronized static CrashHandler getInstance(String path) {
+        if (instance == null)
+            instance = new CrashHandler(path);
+        return instance;
     }
 
     /**
@@ -81,14 +80,16 @@ public class CrashHandler implements UncaughtExceptionHandler {
     public void uncaughtException(Thread thread, Throwable ex) {
         if (ex == null)
             return;
-        if (!handleException(ex) && mDefaultHandler != null) {
+        handleException(ex);
+        if (mDefaultHandler != null) {
             // 如果用户没有处理则让系统默认的异常处理器来处理
             mDefaultHandler.uncaughtException(thread, ex);
         } else {
             try {
                 Thread.sleep(1000);
             } catch (InterruptedException e) {
-                Log.e(TAG, e.toString());
+                e.printStackTrace();
+                Thread.currentThread().interrupt();
             }
             // 退出程序
             android.os.Process.killProcess(android.os.Process.myPid());
@@ -102,14 +103,11 @@ public class CrashHandler implements UncaughtExceptionHandler {
      * @param ex
      * @return true:如果处理了该异常信息;否则返回false.
      */
-    private boolean handleException(Throwable ex) {
-        if (ex == null) {
-            return false;
-        }
+    private void handleException(Throwable ex) {
         // 收集设备参数信息
         collectDeviceInfo(mContext);
         // 保存日志文件
-        String fileName = saveCrashInfo2File(ex);
+        saveCrashInfo2File(ex);
         // 使用Toast来显示异常信息
         new Thread() {
             @Override
@@ -121,7 +119,6 @@ public class CrashHandler implements UncaughtExceptionHandler {
                 Looper.loop();
             }
         }.start();
-        return true;
     }
 
     /**
@@ -161,7 +158,7 @@ public class CrashHandler implements UncaughtExceptionHandler {
      */
     private String saveCrashInfo2File(Throwable ex) {
 
-        StringBuffer sb = new StringBuffer();
+        StringBuilder sb = new StringBuilder();
         sb.append("---------------------sta--------------------------\n");
         for (Map.Entry<String, String> entry : infos.entrySet()) {
             String key = entry.getKey();

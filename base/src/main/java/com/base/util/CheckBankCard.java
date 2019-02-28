@@ -3,7 +3,7 @@ package com.base.util;
 /**
  * Created by GaoTing on 2018/3/8.
  *
- * @TODO :银行卡校验
+ * Explain :银行卡校验
  */
 
 public class CheckBankCard {
@@ -14,6 +14,7 @@ public class CheckBankCard {
     3、将奇数位总和加上偶数位总和，结果应该可以被10整除。
     */
 
+    private CheckBankCard(){}
     /**
      * 校验银行卡卡号
      */

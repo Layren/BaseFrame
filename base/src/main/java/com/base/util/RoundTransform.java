@@ -15,7 +15,7 @@ import com.squareup.picasso.Transformation;
 /**
  * Created by GaoTing on 2018/9/16.
  *
- * @TODO :
+ * Explain :圆角图片处理
  */
 public class RoundTransform implements Transformation {
     private int radius;//圆角值

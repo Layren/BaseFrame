@@ -30,14 +30,15 @@ import java.util.TimerTask;
  * 先设置 CACHE_PATH 然后实现init
  */
 public class BPApplication extends Application {
-    private static String CACHE_PATH;// 缓存文件夹
-    private static String NET_PATH;// 网络接口
-    private static String NET_FILE_PATH;// 网络接口
-    private static String DB_NAME = "-1";//数据库文件名
-    private static int DB_ID = -1; // 数据库文件名
+    private static String cachePath;// 缓存文件夹
+    private static String netPath;// 网络接口
+    private static String netFilePath;// 网络文件接口
+    private static String dbName = "-1";//数据库文件名
+    private static int dbId = -1; // 数据库文件名
     private int mFinalCount;
     private Timer timer;
     private int time;
+    private static String packgeName = "";
 
     @Override
     public void onCreate() {
@@ -77,12 +78,7 @@ public class BPApplication extends Application {
                         public void run() {
                             time++;
                             if (time > 600) {
-                                new Handler(Looper.getMainLooper()).post(new Runnable() {
-                                    @Override
-                                    public void run() {
-                                        ActivityManager.getAppManager().AppExit(getApplicationContext());
-                                    }
-                                });
+                                new Handler(Looper.getMainLooper()).post(() -> ActivityManager.getAppManager().appExit());
                             }
                         }
                     }, 1, 1000);
@@ -102,12 +98,13 @@ public class BPApplication extends Application {
     }
 
     public void init() {
+        packgeName = getPackageName();
         initFilePath();
         initPicasso();
         initCrash();
         initDb();
-        LoginManager.setFILENAME(getPackageName());
-        BPConfig.APPLICATION_ID = getPackageName();
+        LoginManager.setFileName(packgeName);
+        BPConfig.appplcaitonId = packgeName;
     }
 
     protected void initPath(String... paths) {
@@ -120,7 +117,7 @@ public class BPApplication extends Application {
     }
 
     private void initDb() {
-        BaseDBManager.getInstance(this).setDbName(DB_NAME, DB_ID);
+        BaseDBManager.getInstance(this).setDbName(dbName, dbId);
     }
 
     protected void initCrash() {
@@ -132,7 +129,7 @@ public class BPApplication extends Application {
      */
     protected void setCrashEffectiveTime(int day) {
         if (day > 0)
-            BPConfig.EFFECTIVE_TIME = day * 86400000l;
+            BPConfig.effectiveTime = day * 86400000l;
     }
 
     /**
@@ -140,21 +137,23 @@ public class BPApplication extends Application {
      */
     @SuppressLint("SimpleDateFormat")
     protected void deleteUselessFile(File root) {
-        if (BPConfig.EFFECTIVE_TIME < 0)
+        if (BPConfig.effectiveTime < 0)
             return;
-        File files[] = root.listFiles();
+        File[] files = root.listFiles();
         long curTime = System.currentTimeMillis();
         if (files != null) {
             for (File f : files) {
                 if (f.exists()) { // 判断是否存在
                     String name = f.getName();
-                    String time = name.substring(4, name.indexOf("."));
+                    String fileTime = name.substring(4, name.indexOf('.'));
                     DateFormat formatter = new SimpleDateFormat("yyyyMMdd_HHmmss");
                     try {
-                        Date date = formatter.parse(time);
+                        Date date = formatter.parse(fileTime);
                         long createTime = date.getTime();
-                        if (curTime - createTime > BPConfig.EFFECTIVE_TIME)// 判断是否过期（一个月的有效期）
+                        // 判断是否过期（一个月的有效期）
+                        if (curTime - createTime > BPConfig.effectiveTime) {
                             f.delete();
+                        }
                     } catch (ParseException e) {
                         e.printStackTrace();
                     }
@@ -171,49 +170,48 @@ public class BPApplication extends Application {
     /**
      * 文件缓存地址
      */
-    public static String getCACHE_PATH() {
-        if (TextUtils.isEmpty(CACHE_PATH)) {
-            return Environment.getExternalStorageDirectory().getPath() + "/Layren";
+    public static String getCachePath() {
+        if (TextUtils.isEmpty(cachePath)) {
+            return Environment.getExternalStorageDirectory().getPath() + packgeName;
         } else {
-            return CACHE_PATH;
+            return cachePath;
         }
-
     }
 
     /**
      * 设置文件缓存地址
      */
-    protected static void setCACHE_PATH(String _CACHE_PATH) {
-        CACHE_PATH = Environment.getExternalStorageDirectory().getPath() + "/" + _CACHE_PATH;
+    protected static void setCachePath(String cachePaths) {
+        cachePath = Environment.getExternalStorageDirectory().getPath() + "/" + cachePaths;
     }
 
     /**
      * 获取网络地址
      */
-    public static String getNET_PATH() {
-        return NET_PATH;
+    public static String getNetPath() {
+        return netPath;
     }
 
     /**
      * 设置网络地址
      */
-    protected static void setNET_PATH(String _NET_PATH) {
-        NET_PATH = _NET_PATH;
+    protected static void setNetPath(String netPaths) {
+        netPath = netPaths;
     }
 
     /**
      * 设置网络文件地址
      */
-    protected static void setNET_FILE_PATH(String _NET_FILE_PATH) {
-        NET_FILE_PATH = _NET_FILE_PATH;
+    protected static void setNetFilePath(String netFilePaths) {
+        netFilePath = netFilePaths;
     }
 
     /**
      * 设置数据库文件名
      */
-    protected static void setDB_NAME(String dB_NAME, int dBID) {
-        DB_NAME = dB_NAME;
-        DB_ID = dBID;
+    protected static void setDbName(String dbNames, int dbIds) {
+        dbName = dbNames;
+        dbId = dbIds;
     }
 
 
@@ -225,6 +223,7 @@ public class BPApplication extends Application {
             Picasso picasso = new Picasso.Builder(this).downloader(new OkHttp3Downloader(new File(BPConfig.CACHE_IMG_PATH), 1024 * 1024 * 100)).build();
             Picasso.setSingletonInstance(picasso);
         } catch (Exception e) {
+            e.printStackTrace();
         }
     }
 
@@ -233,13 +232,13 @@ public class BPApplication extends Application {
      *
      * @return
      */
-    public static String getNETFILE_PATH() {
-        return NET_FILE_PATH;
+    public static String getNetFilePath() {
+        return netFilePath;
     }
 
     public void setAppThemeColor(String colorVlaue, int color) {
-        BPConfig.APP_THEME_COLOR = color;
-        BPConfig.APP_THEME_COLOR_VALUE = colorVlaue;
+        BPConfig.appThemeColor = color;
+        BPConfig.appThemeColorValue = colorVlaue;
     }
 
     /**

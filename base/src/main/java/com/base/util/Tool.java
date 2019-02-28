@@ -29,6 +29,7 @@ import com.base.config.BPConfig;
 import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.net.MalformedURLException;
@@ -43,6 +44,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import java.util.Random;
 
 import static android.view.Gravity.BOTTOM;
 import static android.view.Gravity.LEFT;
@@ -56,6 +58,9 @@ public class Tool {
     private static final int SIZETYPE_MB = 3;//
     private static final int SIZETYPE_GB = 4;//
 
+    private Tool() {
+    }
+
     /**
      * 随机整数
      *
@@ -63,7 +68,7 @@ public class Tool {
      * @return
      */
     public static int randomInt(int scope) {
-        return (int) (Math.random() * 10000 % scope);
+        return new Random().nextInt(scope);
     }
 
     /**
@@ -90,7 +95,7 @@ public class Tool {
     /**
      * 保存图片到sd卡
      */
-    public static void saveCahceBitmapToFile(Bitmap bitmap, String _file) {
+    public static void saveCahceBitmapToFile(Bitmap bitmap, String fileName) {
         BufferedOutputStream os = null;
         try {
             File filePath = new File(BPConfig.CACHE_IMG_PATH);
@@ -98,7 +103,7 @@ public class Tool {
             if (!filePath.exists()) {
                 filePath.mkdir();
             }
-            File file = new File(filePath + File.separator + _file);
+            File file = new File(filePath + File.separator + fileName);
             if (!file.exists()) {
                 file.createNewFile();
                 os = new BufferedOutputStream(new FileOutputStream(file));
@@ -121,7 +126,7 @@ public class Tool {
     /**
      * 保存图片到相机相册
      */
-    public static void saveCahceBitmapToDCIM(Bitmap bitmap, String _file) {
+    public static void saveCahceBitmapToDCIM(Bitmap bitmap, String fileName) {
         BufferedOutputStream os = null;
         try {
             File filePath = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DCIM).getAbsolutePath() + "/Camera");
@@ -129,10 +134,9 @@ public class Tool {
             if (!filePath.exists()) {
                 filePath.mkdir();
             }
-            File file = new File(filePath + File.separator + _file);
-            if (file.exists())
-                file.delete();
-            file.createNewFile();
+            File file = new File(filePath + File.separator + fileName);
+            if (file.exists() && file.delete())
+                file.createNewFile();
             os = new BufferedOutputStream(new FileOutputStream(file));
             bitmap.compress(Bitmap.CompressFormat.JPEG, 50, os);
         } catch (Exception e) {
@@ -158,7 +162,7 @@ public class Tool {
     public static List<String> getIdFromMap(Map<String, String> map) {
         List<String> keys = new ArrayList<>();
         for (Map.Entry<String, String> entry : map.entrySet()) {
-            keys.add(entry.getKey().toString());
+            keys.add(entry.getKey());
         }
         return keys;
     }
@@ -195,7 +199,7 @@ public class Tool {
      * @return Date 返回转换后的时间
      * @throws ParseException 转换异常
      */
-    public static Date StringToDate(String dateStr, String formatStr) {
+    public static Date stringToDate(String dateStr, String formatStr) {
         DateFormat sdf = new SimpleDateFormat(formatStr);
         Date date = null;
         try {
@@ -232,8 +236,7 @@ public class Tool {
             formatter = new SimpleDateFormat(format);
         }
         Date curDate = new Date(System.currentTimeMillis());// 获取当前时间
-        String str = formatter.format(curDate);
-        return str;
+        return formatter.format(curDate);
     }
 
     /**
@@ -275,17 +278,13 @@ public class Tool {
             uc = url.openConnection();// 生成连接对象
             uc.connect(); // 发出连接
             ld = uc.getDate(); // 取得网站日期时间
-        } catch (MalformedURLException e) {
-            e.printStackTrace();
-            return "";
         } catch (IOException e) {
             e.printStackTrace();
             return "";
         }
 
         Date curDate = new Date(ld); // 转换为标准时间对象
-        String str = formatter.format(curDate);
-        return str;
+        return formatter.format(curDate);
     }
 
     /**
@@ -304,8 +303,20 @@ public class Tool {
         return millionSeconds;
     }
 
+    /**
+     * 请使用 @getMD5()
+     *
+     * @param s
+     * @return
+     * @deprecated ()
+     */
+    @Deprecated
     public static String MD5(String s) {
-        char hexDigits[] = {'0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c', 'd', 'e', 'f'};
+        return getMD5(s);
+    }
+
+    public static String getMD5(String s) {
+        char[] hexDigits = {'0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c', 'd', 'e', 'f'};
         try {
             byte[] btInput = s.getBytes();
             // 获得MD5摘要算法的 MessageDigest 对象
@@ -338,7 +349,7 @@ public class Tool {
         String hexDigits = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
         String ranStr = "";
         for (int i = 0; i < length; i++) {
-            int x = (int) (Math.random() * hexDigits.length());
+            int x = new Random().nextInt(hexDigits.length());
             ranStr += hexDigits.substring(x, x + 1);
         }
         return ranStr;
@@ -353,7 +364,7 @@ public class Tool {
         String hexDigits = "0123456789";
         String ranStr = "";
         for (int i = 0; i < length; i++) {
-            int x = (int) (Math.random() * hexDigits.length());
+            int x = new Random().nextInt(hexDigits.length());
             ranStr += hexDigits.substring(x, x + 1);
         }
         return ranStr;
@@ -365,12 +376,9 @@ public class Tool {
      * 写在/mnt/sdcard/目录下面的文件
      */
     public static void writeFileSdcard(String fileName, String message) {
-        try {
-            // FileOutputStream fout = openFileOutput(fileName, MODE_PRIVATE);
-            FileOutputStream fout = new FileOutputStream(fileName);
+        try (FileOutputStream fout = new FileOutputStream(fileName)) {
             byte[] bytes = message.getBytes();
             fout.write(bytes);
-            fout.close();
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -381,13 +389,11 @@ public class Tool {
      */
     public static String readFileSdcard(String fileName) {
         String res = "";
-        try {
-            FileInputStream fin = new FileInputStream(fileName);
+        try (FileInputStream fin = new FileInputStream(fileName)) {
             int length = fin.available();
             byte[] buffer = new byte[length];
             fin.read(buffer);
             res = new String(buffer, "UTF-8");
-            fin.close();
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -437,11 +443,11 @@ public class Tool {
     public static String getPath(String path) {
         String imgPath = "";
         String fileName = "";
-        if (path.contains(".") && path.lastIndexOf(".") > 0
-                && path.lastIndexOf("/") + 1 < path.lastIndexOf("."))
-            fileName = path.substring(path.lastIndexOf("/") + 1, path.lastIndexOf(".")) + "temp";
+        if (path.contains(".") && path.lastIndexOf('.') > 0
+                && path.lastIndexOf('.') + 1 < path.lastIndexOf('.'))
+            fileName = path.substring(path.lastIndexOf('/') + 1, path.lastIndexOf('.')) + "temp";
         else
-            fileName = path.substring(path.lastIndexOf("/") + 1) + "temp";
+            fileName = path.substring(path.lastIndexOf('.') + 1) + "temp";
         imgPath = BPConfig.CACHE_IMG_PATH + File.separator + fileName;
         File file = new File(imgPath);
         if (file.exists())
@@ -457,7 +463,8 @@ public class Tool {
      * @return
      */
     private static Bitmap zoomImage(@NonNull Bitmap bgimage) {
-        int w = 4096, h = 4096;
+        int w = 4096;
+        int h = 4096;
         // 获取这个图片的宽和高
         float width = bgimage.getWidth();
         float height = bgimage.getHeight();
@@ -540,7 +547,6 @@ public class Tool {
         ints[2] = time / 1000 % 60;
         ints[1] = time / 60000 % 60;
         ints[0] = time / 3600000 % 24;
-        //9148564    2:32:28:564;
         return ints;
     }
 
@@ -557,10 +563,10 @@ public class Tool {
         } catch (Exception e) {
             e.printStackTrace();
         }
-        return FormetFileSize(blockSize, sizeType);
+        return formetFileSize(blockSize, sizeType);
     }
 
-    private static long getFileSizes(File f) throws Exception {
+    private static long getFileSizes(File f) {
         long size = 0;
         File flist[] = f.listFiles();
         for (int i = 0; i < flist.length; i++) {
@@ -573,53 +579,57 @@ public class Tool {
         return size;
     }
 
-    private static long getFileSize(File file) throws Exception {
+    private static long getFileSize(File file) {
         long size = 0;
-        if (file.exists()) {
-            FileInputStream fis = null;
-            fis = new FileInputStream(file);
+        if (!file.exists()) {
+            return 0;
+        }
+        try (FileInputStream fis = new FileInputStream(file)) {
             size = fis.available();
-        } else {
-            file.createNewFile();
+        } catch (FileNotFoundException e) {
+            Log.e("Tool:", "getFileSize Error");
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
         }
         return size;
     }
 
 
-    private static String FormetFileSize(long fileS) {
+    private static String formetFileSize(long fileSize) {
         DecimalFormat df = new DecimalFormat("#.00");
         String fileSizeString = "";
         String wrongSize = "0B";
-        if (fileS == 0) {
+        if (fileSize == 0) {
             return wrongSize;
         }
-        if (fileS < 1024) {
-            fileSizeString = df.format((double) fileS) + "B";
-        } else if (fileS < 1048576) {
-            fileSizeString = df.format((double) fileS / 1024) + "KB";
-        } else if (fileS < 1073741824) {
-            fileSizeString = df.format((double) fileS / 1048576) + "MB";
+        if (fileSize < 1024) {
+            fileSizeString = df.format((double) fileSize) + "B";
+        } else if (fileSize < 1048576) {
+            fileSizeString = df.format((double) fileSize / 1024) + "KB";
+        } else if (fileSize < 1073741824) {
+            fileSizeString = df.format((double) fileSize / 1048576) + "MB";
         } else {
-            fileSizeString = df.format((double) fileS / 1073741824) + "GB";
+            fileSizeString = df.format((double) fileSize / 1073741824) + "GB";
         }
         return fileSizeString;
     }
 
-    private static double FormetFileSize(long fileS, int sizeType) {
+    private static double formetFileSize(long fileSize, int sizeType) {
         DecimalFormat df = new DecimalFormat("#.00");
         double fileSizeLong = 0;
         switch (sizeType) {
             case SIZETYPE_B:
-                fileSizeLong = Double.valueOf(df.format((double) fileS));
+                fileSizeLong = Double.valueOf(df.format((double) fileSize));
                 break;
             case SIZETYPE_KB:
-                fileSizeLong = Double.valueOf(df.format((double) fileS / 1024));
+                fileSizeLong = Double.valueOf(df.format((double) fileSize / 1024));
                 break;
             case SIZETYPE_MB:
-                fileSizeLong = Double.valueOf(df.format((double) fileS / 1048576));
+                fileSizeLong = Double.valueOf(df.format((double) fileSize / 1048576));
                 break;
             case SIZETYPE_GB:
-                fileSizeLong = Double.valueOf(df.format((double) fileS / 1073741824));
+                fileSizeLong = Double.valueOf(df.format((double) fileSize / 1073741824));
                 break;
             default:
                 break;
@@ -634,19 +644,19 @@ public class Tool {
      * @param length 小数点位数限制，0为不限制
      * @return 校正后数字
      */
-    private static String NumberCorrect(String str, int length) {
+    private static String numberCorrect(String str, int length) {
         String result = str;
         if (str.length() > 1 && str.startsWith("0") && !str.substring(1, 2).equals(".")) {
-            result = NumberCorrect(str.substring(1), length);
+            result = numberCorrect(str.substring(1), length);
         } else if (str.startsWith(".")) {
             result = "0.";
-        } else if (str.contains(".") && str.indexOf(".") != str.lastIndexOf(".")) {
-            result = str.substring(0, str.lastIndexOf("."));
+        } else if (str.contains(".") && str.indexOf('.') != str.lastIndexOf('.')) {
+            result = str.substring(0, str.lastIndexOf('.'));
         }
         if (length > 0
                 && result.contains(".")
-                && result.indexOf(".") + length < result.length()) {
-            result = result.substring(0, result.lastIndexOf(".") + length + 1);
+                && result.indexOf('.') + length < result.length()) {
+            result = result.substring(0, result.lastIndexOf('.') + length + 1);
         }
         return result;
     }
@@ -672,7 +682,7 @@ public class Tool {
             @Override
             public void afterTextChanged(Editable s) {
                 editText.removeTextChangedListener(this);
-                String content = Tool.NumberCorrect(s.toString(), length);
+                String content = numberCorrect(s.toString(), length);
                 editText.setText(content);
                 editText.setSelection(content.length());
                 editText.addTextChangedListener(this);
@@ -735,6 +745,8 @@ public class Tool {
             case BOTTOM:
                 view.setCompoundDrawablesWithIntrinsicBounds(0, 0, 0, resourId);
                 break;
+            default:
+                break;
         }
         view.setTextColor(color);
     }
@@ -793,16 +805,12 @@ public class Tool {
             mEditText[i].setCursorVisible(false);// 内容清空后将编辑框1的光标隐藏，提升用户的体验度
             // 编辑框设置触摸监听
             final int finalI = i;
-            mEditText[i].setOnTouchListener(new View.OnTouchListener() {
-                @Override
-                public boolean onTouch(View view, MotionEvent motionEvent) {
-                    if (MotionEvent.ACTION_DOWN == motionEvent.getAction()) {
-                        mEditText[finalI].setCursorVisible(true);// 再次点击显示光标
-                    }
-
-                    return false;
+            mEditText[i].setOnTouchListener((view, motionEvent) -> {
+                if (MotionEvent.ACTION_DOWN == motionEvent.getAction()) {
+                    mEditText[finalI].setCursorVisible(true);// 再次点击显示光标
                 }
 
+                return false;
             });
         }
 

@@ -38,12 +38,8 @@ public class Base64Util {
             out = new FileOutputStream(savePath);
             out.write(buffer);
             out.close();
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
         } catch (IOException e) {
             e.printStackTrace();
         }
-
-
     }
 }

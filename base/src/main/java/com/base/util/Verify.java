@@ -6,17 +6,19 @@ import java.util.regex.Pattern;
 /**
  * Created by GaoTing on 2018/3/3.
  *
- * @TODO :验证
+ * Explain :验证
  */
 
 public class Verify {
+
+    private Verify(){}
     /**
      * 验证邮箱
      *
      * @param email
      * @return
      */
-    public static boolean Email(String email) {
+    public static boolean email(String email) {
         boolean flag;
         try {
             String check = "^([a-z0-9A-Z]+[-|_|\\.]?)+[a-z0-9A-Z]@([a-z0-9A-Z]+(-[a-z0-9A-Z]+)?\\.)+[a-zA-Z]{2,}$";
@@ -35,24 +37,24 @@ public class Verify {
      * @param cardNumber
      * @return
      */
-    public static boolean BankCard(String cardNumber) {
+    public static boolean bankCard(String cardNumber) {
         return CheckBankCard.checkBankCard(cardNumber);
     }
 
     /**
      * 验证身份证
      *
-     * @param IDNumber
+     * @param idNumber
      * @return
      */
-    public static boolean IDCard(String IDNumber) {
-        return IDCard.Verify(IDNumber);
+    public static boolean idCard(String idNumber) {
+        return IDCard.verify(idNumber);
     }
 
     /**
      * 验证手机格式
      */
-    public static boolean PhoneNumber(String mobiles) {
+    public static boolean phoneNumber(String mobiles) {
         if (mobiles == null) return false;
         String telRegex = "[1][3456789]\\d{9}";
         return mobiles.matches(telRegex);

@@ -5,7 +5,7 @@ import com.chad.library.adapter.base.entity.MultiItemEntity;
 /**
  * Created by GaoTing on 2018/9/27.
  *
- * @TODO :
+ * explain :
  */
 public class MultiModel implements MultiItemEntity {
     private int itemType;

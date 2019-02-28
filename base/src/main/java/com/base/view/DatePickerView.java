@@ -54,7 +54,7 @@ public class DatePickerView extends View {
     private float mMoveLen = 0;
     private boolean isInit = false;
     private boolean canScroll = true;
-    private onSelectListener mSelectListener;
+    private OnSelectListener mSelectListener;
     private Timer timer;
     private MyTimerTask mTask;
 
@@ -67,7 +67,9 @@ public class DatePickerView extends View {
                 if (mTask != null) {
                     mTask.cancel();
                     mTask = null;
-                    performSelect();
+                    if (mSelectListener != null) {
+                        mSelectListener.onSelect(mDataList.get(mCurrentSelected));
+                    }
                 }
             } else {
                 // 这里mMoveLen / Math.abs(mMoveLen)是为了保有mMoveLen的正负号，以实现上滚或下滚
@@ -82,14 +84,8 @@ public class DatePickerView extends View {
         init();
     }
 
-    public void setOnSelectListener(onSelectListener listener) {
+    public void setOnSelectListener(OnSelectListener listener) {
         mSelectListener = listener;
-    }
-
-    private void performSelect() {
-        if (mSelectListener != null) {
-            mSelectListener.onSelect(mDataList.get(mCurrentSelected));
-        }
     }
 
     public void setData(List<String> datas) {
@@ -277,6 +273,8 @@ public class DatePickerView extends View {
             case MotionEvent.ACTION_UP:
                 doUp();
                 break;
+            default:
+                break;
         }
         return true;
     }
@@ -316,7 +314,7 @@ public class DatePickerView extends View {
         }
     }
 
-    public interface onSelectListener {
+    public interface OnSelectListener {
         void onSelect(String text);
     }
 

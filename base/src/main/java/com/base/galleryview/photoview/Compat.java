@@ -7,7 +7,10 @@ import android.view.View;
 
 public class Compat {
 
-    public static void postOnAnimation(View view, Runnable runnable) {
+    private Compat() {
+    }
+
+    static void postOnAnimation(View view, Runnable runnable) {
         postOnAnimationJellyBean(view, runnable);
     }
 

@@ -56,9 +56,7 @@ import java.util.Map;
  */
 public final class CaptureActivity extends BaseActivity implements
         SurfaceHolder.Callback, View.OnClickListener, ParamsManager {
-
     private static final String TAG = CaptureActivity.class.getSimpleName();
-
     private static final int REQUEST_CODE = 100;
 
     /**
@@ -166,7 +164,7 @@ public final class CaptureActivity extends BaseActivity implements
         // 会导致扫描窗口的尺寸计算有误的bug
         cameraManager = new CameraManager(getApplication());
 
-        viewfinderView = (ViewfinderView) findViewById(R.id.capture_viewfinder_view);
+        viewfinderView = findViewById(R.id.capture_viewfinder_view);
         viewfinderView.setCameraManager(cameraManager);
         //设置扫描框四角边线
         viewfinderView.setRectEdgeBitmaps(BitmapFactory.decodeResource(getResources(),
@@ -248,16 +246,15 @@ public final class CaptureActivity extends BaseActivity implements
                 break;
             case KeyEvent.KEYCODE_FOCUS:
             case KeyEvent.KEYCODE_CAMERA:
-                // Handle these events so they don't launch the Camera app
                 return true;
-
             case KeyEvent.KEYCODE_VOLUME_UP:
                 cameraManager.zoomIn();
                 return true;
-
             case KeyEvent.KEYCODE_VOLUME_DOWN:
                 cameraManager.zoomOut();
                 return true;
+            default:
+                break;
 
         }
         return super.onKeyDown(keyCode, event);
@@ -268,55 +265,35 @@ public final class CaptureActivity extends BaseActivity implements
 
         if (resultCode == RESULT_OK) {
             final ProgressDialog progressDialog;
-            switch (requestCode) {
-                case REQUEST_CODE:
-
-                    // 获取选中图片的路径
-                    Cursor cursor = getContentResolver().query(
-                            intent.getData(), new String[]{MediaStore.Images.ImageColumns.DATA}, null, null, null);
-                    if (cursor.moveToFirst()) {
-                        photoPath = cursor.getString(cursor
-                                .getColumnIndex(MediaStore.Images.ImageColumns.DATA));
+            if (requestCode == REQUEST_CODE) {// 获取选中图片的路径
+                Cursor cursor = getContentResolver().query(
+                        intent.getData(), new String[]{MediaStore.Images.ImageColumns.DATA}, null, null, null);
+                if (cursor.moveToFirst()) {
+                    photoPath = cursor.getString(cursor
+                            .getColumnIndex(MediaStore.Images.ImageColumns.DATA));
+                }
+                cursor.close();
+                progressDialog = new ProgressDialog(this);
+                progressDialog.setMessage("正在扫描...");
+                progressDialog.setCancelable(false);
+                progressDialog.show();
+                new Thread(() -> {
+                    Bitmap img = BitmapUtils.getCompressedBitmap(photoPath);
+                    BitmapDecoder decoder = new BitmapDecoder();
+                    Result result = decoder.getRawResult(img);
+                    if (result != null) {
+                        call.success(ResultParser.parseResult(result).toString());
+                    } else {
+                        call.success("解析错误！");
                     }
-                    cursor.close();
-
-                    progressDialog = new ProgressDialog(this);
-                    progressDialog.setMessage("正在扫描...");
-                    progressDialog.setCancelable(false);
-                    progressDialog.show();
-
-                    new Thread(new Runnable() {
-
-                        @Override
-                        public void run() {
-
-                            Bitmap img = BitmapUtils.getCompressedBitmap(photoPath);
-
-                            BitmapDecoder decoder = new BitmapDecoder();
-                            Result result = decoder.getRawResult(img);
-
-                            if (result != null) {
-                                call.Success(ResultParser.parseResult(result).toString());
-                            } else {
-                                call.Success("解析错误！");
-                            }
-
-                            progressDialog.dismiss();
-
-                        }
-                    }).start();
-
-                    break;
-
+                    progressDialog.dismiss();
+                }).start();
             }
         }
-
     }
 
     @Override
     public void surfaceCreated(SurfaceHolder holder) {
-        if (holder == null) {
-        }
         if (!hasSurface) {
             hasSurface = true;
             initCamera(holder);
@@ -326,7 +303,6 @@ public final class CaptureActivity extends BaseActivity implements
     @Override
     public void surfaceChanged(SurfaceHolder holder, int format, int width,
                                int height) {
-        /*hasSurface = false;*/
     }
 
     @Override
@@ -344,17 +320,12 @@ public final class CaptureActivity extends BaseActivity implements
      */
     @Override
     public void handleDecode(Result rawResult, Bitmap barcode, float scaleFactor) {
-
         // 重新计时
         inactivityTimer.onActivity();
-
         lastResult = rawResult;
-
         // 把图片画到扫描框
-//        viewfinderView.drawResultBitmap(barcode);
-
         beepManager.playBeepSoundAndVibrate();
-        call.Success(ResultParser.parseResult(rawResult).toString());
+        call.success(ResultParser.parseResult(rawResult).toString());
         this.finish();
 
     }
@@ -414,7 +385,7 @@ public final class CaptureActivity extends BaseActivity implements
                 handler = new SannerHandler(this, decodeFormats,
                         decodeHints, characterSet, cameraManager);
             }
-            decodeOrStoreSavedBitmap(null, null);
+            decodeOrStoreSavedBitmap(null);
         } catch (IOException ioe) {
             Log.w(TAG, ioe);
             displayFrameworkBugMessageAndExit();
@@ -429,10 +400,9 @@ public final class CaptureActivity extends BaseActivity implements
     /**
      * 向CaptureActivityHandler中发送消息，并展示扫描到的图像
      *
-     * @param bitmap
      * @param result
      */
-    private void decodeOrStoreSavedBitmap(Bitmap bitmap, Result result) {
+    private void decodeOrStoreSavedBitmap(Result result) {
         // Bitmap isn't used yet -- will be used soon
         if (handler == null) {
             savedResultToShow = result;
@@ -476,8 +446,6 @@ public final class CaptureActivity extends BaseActivity implements
                 cameraManager.setTorch(true); // 打开闪光灯
                 isFlashlightOpen = true;
             }
-
-        } else {
         }
 
     }

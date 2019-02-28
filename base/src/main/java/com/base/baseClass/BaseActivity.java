@@ -4,8 +4,6 @@ import android.app.Dialog;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.ActivityInfo;
-import android.content.res.Configuration;
-import android.content.res.Resources;
 import android.graphics.Color;
 import android.os.Build;
 import android.os.Bundle;
@@ -13,12 +11,10 @@ import android.support.annotation.LayoutRes;
 import android.support.annotation.StringRes;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.app.AppCompatActivity;
-import android.text.TextUtils;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
-import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
@@ -40,8 +36,6 @@ import com.chad.library.adapter.base.BaseViewHolder;
 import com.base.R;
 import com.gyf.barlibrary.ImmersionBar;
 
-import java.util.HashMap;
-import java.util.Locale;
 import java.util.Map;
 import java.util.Map.Entry;
 
@@ -52,7 +46,7 @@ public abstract class BaseActivity extends AppCompatActivity implements SNReques
 
     protected int screenWidth;
     protected int screenHeight;
-    public Dialog loadingDialog;
+    protected Dialog loadingDialog;
     protected int apiCurReturnCount;//
     protected int apiALLCount;//
 
@@ -72,21 +66,20 @@ public abstract class BaseActivity extends AppCompatActivity implements SNReques
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        // TODO Auto-generated method stub
         super.onCreate(savedInstanceState);
-        loadingDialog = CustomDialog.LineDialog(this);
+        loadingDialog = CustomDialog.lineDialog(this);
         DisplayMetrics dm = new DisplayMetrics();
         Log.e("curActivity : ", this.getClass().getName());
         getWindowManager().getDefaultDisplay().getMetrics(dm);
         screenWidth = dm.widthPixels;
         screenHeight = dm.heightPixels;
-        BPConfig.SCREEN_WIDTH = screenWidth;
-        BPConfig.SCREEN_HEIGHT = screenHeight;
-        BPConfig.DENSITY = this.getResources().getDisplayMetrics().density;
+        BPConfig.screenWidth = screenWidth;
+        BPConfig.screenHeight = screenHeight;
+        BPConfig.density = this.getResources().getDisplayMetrics().density;
         ActivityManager.getAppManager().addActivity(this);
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
         setContentView(getLayoutId());
-        if (BPConfig.IS_WHITE_HEADER)
+        if (BPConfig.isWhiteHeader)
             setWhiteHeaderView();
         initView(savedInstanceState);
     }
@@ -141,20 +134,20 @@ public abstract class BaseActivity extends AppCompatActivity implements SNReques
      * 设置单布局RefreshRecyclerView （若设置，需重写 #setHolder 来填充布局）
      *
      * @param recyclerView
-     * @param ItemLayoutId
+     * @param itemLayoutId
      */
-    protected void setRecyclerViewAdapter(RefreshRecyclerView recyclerView, @LayoutRes int ItemLayoutId) {
-        recyclerView.setAdapter(ItemLayoutId, this);
+    protected void setRecyclerViewAdapter(RefreshRecyclerView recyclerView, @LayoutRes int itemLayoutId) {
+        recyclerView.setAdapter(itemLayoutId, this);
     }
 
     /**
      * 设置多布局RefreshRecyclerView （若设置，需重写 #setHolder(int ) 来填充布局）
      *
      * @param recyclerView
-     * @param ItemLayoutIds
+     * @param itemLayoutIds
      */
-    protected void setRecyclerViewMultiItemAdapter(RefreshRecyclerView recyclerView, @LayoutRes int... ItemLayoutIds) {
-        recyclerView.setMultiAdapter(this, ItemLayoutIds);
+    protected void setRecyclerViewMultiItemAdapter(RefreshRecyclerView recyclerView, @LayoutRes int... itemLayoutIds) {
+        recyclerView.setMultiAdapter(this, itemLayoutIds);
     }
 
     /**
@@ -200,7 +193,7 @@ public abstract class BaseActivity extends AppCompatActivity implements SNReques
             if (getStatusBarView() != 0)
                 immersionBar.titleBar(getStatusBarView());
             else
-                immersionBar.statusBarColor(BPConfig.APP_THEME_COLOR_VALUE).fitsSystemWindows(true);
+                immersionBar.statusBarColor(BPConfig.appThemeColorValue).fitsSystemWindows(true);
 
             immersionBar.keyboardEnable(true)
                     .init();
@@ -217,7 +210,7 @@ public abstract class BaseActivity extends AppCompatActivity implements SNReques
             if (getStatusBarView() != 0)
                 immersionBar.titleBar(getStatusBarView());
             else
-                immersionBar.statusBarColor(BPConfig.APP_THEME_COLOR_VALUE).fitsSystemWindows(true);
+                immersionBar.statusBarColor(BPConfig.appThemeColorValue).fitsSystemWindows(true);
 
             immersionBar.keyboardEnable(true)
                     .init();
@@ -226,7 +219,7 @@ public abstract class BaseActivity extends AppCompatActivity implements SNReques
         title = findViewById(R.id.tv_title_include_header);
         layout = findViewById(R.id.layout_include_header);
         if (layout != null)
-            layout.setBackgroundColor(BPConfig.APP_THEME_COLOR);
+            layout.setBackgroundColor(BPConfig.appThemeColor);
         back = findViewById(R.id.img_back_iclude_header);
         if (back != null) {
             back.setOnClickListener(v -> finishAnim());
@@ -380,12 +373,12 @@ public abstract class BaseActivity extends AppCompatActivity implements SNReques
             dialogInfo = new DialogStringInfo() {
 
                 @Override
-                public void LeftBtnClick(View v) {
+                public void leftBtnClick(View v) {
                     checkDialog();
                 }
 
                 @Override
-                public void RightBtnClick(View v, String string) {
+                public void rightBtnClick(View v, String string) {
                     checkDialog();
                 }
 
@@ -393,9 +386,9 @@ public abstract class BaseActivity extends AppCompatActivity implements SNReques
         dialogInfo.setTitle(title);
         dialogInfo.setContent(content);
         if (buttonNum == 1)
-            dialogVersion = CustomDialog.SinglaBtnStringDialog(this, dialogInfo);
+            dialogVersion = CustomDialog.singlaBtnStringDialog(this, dialogInfo);
         else if (buttonNum == 2)
-            dialogVersion = CustomDialog.TwoBtnStringDialog(this, dialogInfo);
+            dialogVersion = CustomDialog.twoBtnStringDialog(this, dialogInfo);
         dialogVersion.show();
     }
 

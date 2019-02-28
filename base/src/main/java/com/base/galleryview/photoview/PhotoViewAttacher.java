@@ -35,6 +35,7 @@ import android.widget.ImageView.ScaleType;
 
 import com.base.galleryview.photoview.gestures.OnGestureListener;
 import com.base.galleryview.photoview.gestures.VersionedGestureDetector;
+import com.base.galleryview.photoview.scrollerproxy.ScrollerParams;
 import com.base.galleryview.photoview.scrollerproxy.ScrollerProxy;
 
 import java.lang.ref.WeakReference;
@@ -51,8 +52,8 @@ public class PhotoViewAttacher implements IPhotoView, View.OnTouchListener, OnGe
     // release builds
     private static final boolean DEBUG = Log.isLoggable(LOG_TAG, Log.DEBUG);
 
-    static final Interpolator sInterpolator = new AccelerateDecelerateInterpolator();
-    int ZOOM_DURATION = DEFAULT_ZOOM_DURATION;
+    private static final Interpolator sInterpolator = new AccelerateDecelerateInterpolator();
+    private int ZOOM_DURATION = DEFAULT_ZOOM_DURATION;
 
     static final int EDGE_NONE = -1;
     static final int EDGE_LEFT = 0;
@@ -87,13 +88,10 @@ public class PhotoViewAttacher implements IPhotoView, View.OnTouchListener, OnGe
         if (null == scaleType) {
             return false;
         }
-
-        switch (scaleType) {
-            case MATRIX:
-                throw new IllegalArgumentException(scaleType.name() + " is not supported in PhotoView");
-
-            default:
-                return true;
+        if (scaleType == ScaleType.MATRIX) {
+            throw new IllegalArgumentException(scaleType.name() + " is not supported in PhotoView");
+        } else {
+            return true;
         }
     }
 
@@ -131,7 +129,10 @@ public class PhotoViewAttacher implements IPhotoView, View.OnTouchListener, OnGe
     private OnViewTapListener mViewTapListener;
     private OnLongClickListener mLongClickListener;
 
-    private int mIvTop, mIvRight, mIvBottom, mIvLeft;
+    private int mIvTop;
+    private int mIvRight;
+    private int mIvBottom;
+    private int mIvLeft;
     private FlingRunnable mCurrentFlingRunnable;
     private int mScrollEdge = EDGE_BOTH;
 
@@ -254,15 +255,6 @@ public class PhotoViewAttacher implements IPhotoView, View.OnTouchListener, OnGe
         return true;
     }
 
-    /**
-     * @deprecated use {@link #setRotationTo(float)}
-     */
-    @Override
-    public void setPhotoViewRotation(float degrees) {
-        mSuppMatrix.setRotate(degrees % 360);
-        checkAndDisplayMatrix();
-    }
-
     @Override
     public void setRotationTo(float degrees) {
         mSuppMatrix.setRotate(degrees % 360);
@@ -291,33 +283,18 @@ public class PhotoViewAttacher implements IPhotoView, View.OnTouchListener, OnGe
         return imageView;
     }
 
-    @Override
-    @Deprecated
-    public float getMinScale() {
-        return getMinimumScale();
-    }
 
     @Override
     public float getMinimumScale() {
         return mMinScale;
     }
 
-    @Override
-    @Deprecated
-    public float getMidScale() {
-        return getMediumScale();
-    }
 
     @Override
     public float getMediumScale() {
         return mMidScale;
     }
 
-    @Override
-    @Deprecated
-    public float getMaxScale() {
-        return getMaximumScale();
-    }
 
     @Override
     public float getMaximumScale() {
@@ -339,11 +316,6 @@ public class PhotoViewAttacher implements IPhotoView, View.OnTouchListener, OnGe
         if (mScaleDragDetector.isScaling()) {
             return; // Do not drag if we are already scaling
         }
-
-        if (DEBUG) {
-            Log.d(LOG_TAG, String.format("onDrag: dx: %.2f. dy: %.2f", dx, dy));
-        }
-
         ImageView imageView = getImageView();
         mSuppMatrix.postTranslate(dx, dy);
         checkAndDisplayMatrix();
@@ -372,9 +344,6 @@ public class PhotoViewAttacher implements IPhotoView, View.OnTouchListener, OnGe
 
     @Override
     public void onFling(float startX, float startY, float velocityX, float velocityY) {
-        if (DEBUG) {
-            Log.d(LOG_TAG, "onFling. sX: " + startX + " sY: " + startY + " Vx: " + velocityX + " Vy: " + velocityY);
-        }
         ImageView imageView = getImageView();
         mCurrentFlingRunnable = new FlingRunnable(imageView.getContext());
         mCurrentFlingRunnable.fling(getImageViewWidth(imageView), getImageViewHeight(imageView), (int) velocityX, (int) velocityY);
@@ -384,7 +353,6 @@ public class PhotoViewAttacher implements IPhotoView, View.OnTouchListener, OnGe
     @Override
     public void onGlobalLayout() {
         ImageView imageView = getImageView();
-
         if (null != imageView) {
             if (mZoomEnabled) {
                 final int top = imageView.getTop();
@@ -430,23 +398,16 @@ public class PhotoViewAttacher implements IPhotoView, View.OnTouchListener, OnGe
     @Override
     public boolean onTouch(View v, MotionEvent ev) {
         boolean handled = false;
-
         if (mZoomEnabled && hasDrawable((ImageView) v)) {
             ViewParent parent = v.getParent();
             switch (ev.getAction()) {
                 case ACTION_DOWN:
-                    // First, disable the Parent from intercepting the touch
-                    // event
                     if (null != parent)
                         parent.requestDisallowInterceptTouchEvent(true);
                     else
                         Log.i(LOG_TAG, "onTouch getParent() returned null");
-
-                    // If we're flinging, and the user presses down, cancel
-                    // fling
                     cancelFling();
                     break;
-
                 case ACTION_CANCEL:
                 case ACTION_UP:
                     // If the user has zoomed less than min scale, zoom back
@@ -458,6 +419,8 @@ public class PhotoViewAttacher implements IPhotoView, View.OnTouchListener, OnGe
                             handled = true;
                         }
                     }
+                    break;
+                default:
                     break;
             }
 
@@ -481,21 +444,9 @@ public class PhotoViewAttacher implements IPhotoView, View.OnTouchListener, OnGe
     }
 
     @Override
-    @Deprecated
-    public void setMinScale(float minScale) {
-        setMinimumScale(minScale);
-    }
-
-    @Override
     public void setMinimumScale(float minimumScale) {
         checkZoomLevels(minimumScale, mMidScale, mMaxScale);
         mMinScale = minimumScale;
-    }
-
-    @Override
-    @Deprecated
-    public void setMidScale(float midScale) {
-        setMediumScale(midScale);
     }
 
     @Override
@@ -504,11 +455,6 @@ public class PhotoViewAttacher implements IPhotoView, View.OnTouchListener, OnGe
         mMidScale = mediumScale;
     }
 
-    @Override
-    @Deprecated
-    public void setMaxScale(float maxScale) {
-        setMaximumScale(maxScale);
-    }
 
     @Override
     public void setMaximumScale(float maximumScale) {
@@ -635,10 +581,8 @@ public class PhotoViewAttacher implements IPhotoView, View.OnTouchListener, OnGe
          * PhotoView's getScaleType() will just divert to this.getScaleType() so
          * only call if we're not attached to a PhotoView.
          */
-        if (null != imageView && !(imageView instanceof IPhotoView)) {
-            if (!ScaleType.MATRIX.equals(imageView.getScaleType())) {
-                throw new IllegalStateException("The ImageView's ScaleType has been changed since attaching a PhotoViewAttacher");
-            }
+        if (null != imageView && !(imageView instanceof IPhotoView) && !ScaleType.MATRIX.equals(imageView.getScaleType())) {
+            throw new IllegalStateException("The ImageView's ScaleType has been changed since attaching a PhotoViewAttacher");
         }
     }
 
@@ -653,8 +597,10 @@ public class PhotoViewAttacher implements IPhotoView, View.OnTouchListener, OnGe
             return false;
         }
 
-        final float height = rect.height(), width = rect.width();
-        float deltaX = 0, deltaY = 0;
+        final float height = rect.height();
+        final float width = rect.width();
+        float deltaX = 0;
+        float deltaY = 0;
 
         final int viewHeight = getImageViewHeight(imageView);
         if (height <= viewHeight) {
@@ -910,9 +856,11 @@ public class PhotoViewAttacher implements IPhotoView, View.OnTouchListener, OnGe
 
     private class AnimatedZoomRunnable implements Runnable {
 
-        private final float mFocalX, mFocalY;
+        private final float mFocalX;
+        private final float mFocalY;
         private final long mStartTime;
-        private final float mZoomStart, mZoomEnd;
+        private final float mZoomStart;
+        private final float mZoomEnd;
 
         public AnimatedZoomRunnable(final float currentZoom, final float targetZoom, final float focalX, final float focalY) {
             mFocalX = focalX;
@@ -953,7 +901,8 @@ public class PhotoViewAttacher implements IPhotoView, View.OnTouchListener, OnGe
     private class FlingRunnable implements Runnable {
 
         private final ScrollerProxy mScroller;
-        private int mCurrentX, mCurrentY;
+        private int mCurrentX;
+        private int mCurrentY;
 
         public FlingRunnable(Context context) {
             mScroller = ScrollerProxy.getScroller(context);
@@ -973,7 +922,10 @@ public class PhotoViewAttacher implements IPhotoView, View.OnTouchListener, OnGe
             }
 
             final int startX = Math.round(-rect.left);
-            final int minX, maxX, minY, maxY;
+            final int minX;
+            final int maxX;
+            final int minY;
+            final int maxY;
 
             if (viewWidth < rect.width()) {
                 minX = 0;
@@ -997,9 +949,19 @@ public class PhotoViewAttacher implements IPhotoView, View.OnTouchListener, OnGe
                 Log.d(LOG_TAG, "fling. StartX:" + startX + " StartY:" + startY + " MaxX:" + maxX + " MaxY:" + maxY);
             }
 
-            // If we actually can move, fling the scroller
             if (startX != maxX || startY != maxY) {
-                mScroller.fling(startX, startY, velocityX, velocityY, minX, maxX, minY, maxY, 0, 0);
+                ScrollerParams params = new ScrollerParams();
+                params.setStartX(startX);
+                params.setStartY(startY);
+                params.setVelocityX(velocityX);
+                params.setVelocityY(velocityY);
+                params.setMinX(minX);
+                params.setMaxX(maxX);
+                params.setMinY(minY);
+                params.setMaxY(maxY);
+                params.setOverX(0);
+                params.setOverY(0);
+                mScroller.fling(params);
             }
         }
 

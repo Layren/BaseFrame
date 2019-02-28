@@ -8,8 +8,6 @@ import android.support.annotation.LayoutRes;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.annotation.StringRes;
-import android.support.v4.app.Fragment;
-import android.util.DisplayMetrics;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -37,7 +35,8 @@ import java.util.Map.Entry;
 import butterknife.ButterKnife;
 import butterknife.Unbinder;
 
-public abstract class BaseFragment extends ImmersionFragment implements SNRequestDataListener, RefreshViewAdapterListener, RefreshViewMultiItemAdapterListener {
+public abstract class BaseFragment extends ImmersionFragment
+        implements SNRequestDataListener, RefreshViewAdapterListener, RefreshViewMultiItemAdapterListener {
 
     protected Dialog loadingDialog;
     protected int screenWidth;
@@ -51,15 +50,17 @@ public abstract class BaseFragment extends ImmersionFragment implements SNReques
     private Unbinder unbinder;
 
     protected ImmersionBar mImmersionBar;
+    private int statusView;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        loadingDialog = CustomDialog.LineDialog(getActivity());
-        screenWidth = BPConfig.SCREEN_WIDTH;
-        screenHeight = BPConfig.SCREEN_HEIGHT;
-        if (getImmersion())
+        loadingDialog = CustomDialog.lineDialog(getActivity());
+        screenWidth = BPConfig.screenWidth;
+        screenHeight = BPConfig.screenHeight;
+        if (immersionBarEnabled()) {
             initImmersionBar();
+        }
     }
 
     @Override
@@ -82,12 +83,12 @@ public abstract class BaseFragment extends ImmersionFragment implements SNReques
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         fragmentView = inflater.inflate(getLayoutId(), container, false);
-        View v = BindView(fragmentView);
+        View v = bindView(fragmentView);
         initView();
         return v;
     }
 
-    public View BindView(View view) {
+    public View bindView(View view) {
         unbinder = ButterKnife.bind(this, view);
         return view;
     }
@@ -102,13 +103,10 @@ public abstract class BaseFragment extends ImmersionFragment implements SNReques
     /**
      * 初始化沉浸式
      */
-    protected void initImmersionBar() {
+    @Override
+    public void initImmersionBar() {
         mImmersionBar = ImmersionBar.with(this);
         mImmersionBar.keyboardEnable(true).navigationBarWithKitkatEnable(false).init();
-    }
-
-    protected boolean getImmersion() {
-        return false;
     }
 
     /**
@@ -122,33 +120,34 @@ public abstract class BaseFragment extends ImmersionFragment implements SNReques
      * 初始化
      */
     protected abstract void initView();
+
     /**
      * 返回状态栏沉浸ViewId 默认为0
      *
      * @return
      */
     protected int getStatusBarView() {
-        return 0;
+        return statusView;
     }
 
     /**
      * 设置单布局RefreshRecyclerView （若设置，需重写 #setHolder 来填充布局）
      *
      * @param recyclerView
-     * @param ItemLayoutId
+     * @param itemLayoutId
      */
-    protected void setRecyclerViewAdapter(RefreshRecyclerView recyclerView, @LayoutRes int ItemLayoutId) {
-        recyclerView.setAdapter(ItemLayoutId, this);
+    protected void setRecyclerViewAdapter(RefreshRecyclerView recyclerView, @LayoutRes int itemLayoutId) {
+        recyclerView.setAdapter(itemLayoutId, this);
     }
 
     /**
      * 设置多布局RefreshRecyclerView （若设置，需重写 #setHolder(int ) 来填充布局）
      *
      * @param recyclerView
-     * @param ItemLayoutIds
+     * @param itemLayoutIds
      */
-    protected void setRecyclerViewMultiItemAdapter(RefreshRecyclerView recyclerView, @LayoutRes int... ItemLayoutIds) {
-        recyclerView.setMultiAdapter(this, ItemLayoutIds);
+    protected void setRecyclerViewMultiItemAdapter(RefreshRecyclerView recyclerView, @LayoutRes int... itemLayoutIds) {
+        recyclerView.setMultiAdapter(this, itemLayoutIds);
     }
 
     /**
@@ -238,17 +237,18 @@ public abstract class BaseFragment extends ImmersionFragment implements SNReques
     }
 
     protected void immersionInit() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP){
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
 
             ImmersionBar immersionBar = ImmersionBar.with(this);
             if (getStatusBarView() != 0)
                 immersionBar.titleBar(getStatusBarView());
             else
-                immersionBar.navigationBarColor(BPConfig.APP_THEME_COLOR_VALUE).fitsSystemWindows(true);
+                immersionBar.navigationBarColor(BPConfig.appThemeColorValue).fitsSystemWindows(true);
 
             immersionBar.keyboardEnable(true)
                     .init();
-    }}
+        }
+    }
 
 
     protected void showToast(String msg) {
@@ -305,12 +305,12 @@ public abstract class BaseFragment extends ImmersionFragment implements SNReques
             dialogInfo = new DialogStringInfo() {
 
                 @Override
-                public void LeftBtnClick(View v) {
+                public void leftBtnClick(View v) {
                     checkDialog();
                 }
 
                 @Override
-                public void RightBtnClick(View v, String string) {
+                public void rightBtnClick(View v, String string) {
                     checkDialog();
                 }
 
@@ -318,9 +318,9 @@ public abstract class BaseFragment extends ImmersionFragment implements SNReques
         dialogInfo.setTitle(title);
         dialogInfo.setContent(content);
         if (buttonNum == 1)
-            dialogVersion = CustomDialog.SinglaBtnStringDialog(getActivity(), dialogInfo);
+            dialogVersion = CustomDialog.singlaBtnStringDialog(getActivity(), dialogInfo);
         else if (buttonNum == 2)
-            dialogVersion = CustomDialog.TwoBtnStringDialog(getActivity(), dialogInfo);
+            dialogVersion = CustomDialog.twoBtnStringDialog(getActivity(), dialogInfo);
         dialogVersion.show();
     }
 

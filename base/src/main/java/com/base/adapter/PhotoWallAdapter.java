@@ -20,10 +20,11 @@ import java.util.List;
 
 public class PhotoWallAdapter extends BaseAdapter {
     private Context context;
-    private ArrayList<String> imagePathList = null;
+    private List<String> imagePathList = null;
     private List<Integer> selects = new ArrayList<>();
+    private boolean isSign;
 
-    public PhotoWallAdapter(Context context, ArrayList<String> imagePathList) {
+    public PhotoWallAdapter(Context context, List<String> imagePathList) {
         this.context = context;
         this.imagePathList = imagePathList;
     }
@@ -57,42 +58,37 @@ public class PhotoWallAdapter extends BaseAdapter {
         } else {
             holder = (ViewHolder) convertView.getTag();
         }
-        if (PickPhoto.isSign()) {
+        if (isSign) {
             holder.checkBox.setVisibility(View.GONE);
         } else {
-            if (selects.contains(position)) {
-                holder.checkBox.setChecked(true);
-            } else {
-                holder.checkBox.setChecked(false);
-            }
+            holder.checkBox.setChecked(selects.contains(position));
         }
-        holder.checkBox.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (holder.checkBox.isChecked())
-                    selects.add(position);
-                else
-                    selects.remove((Integer) position);
+        holder.checkBox.setOnClickListener(v -> {
+            if (holder.checkBox.isChecked())
+                selects.add(position);
+            else
+                selects.remove((Integer) position);
+        });
+        holder.checkBox.setOnCheckedChangeListener((buttonView, isChecked) -> {
+            if (isChecked) {
+                holder.imageView.setColorFilter(0x80000000);
+            } else {
+                holder.imageView.setColorFilter(null);
             }
         });
-        holder.checkBox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-            @Override
-            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                if (isChecked) {
-                    holder.imageView.setColorFilter(0x80000000);
-                } else {
-                    holder.imageView.setColorFilter(null);
-                }
-            }
-        });
-        int size = BPConfig.SCREEN_WIDTH / 3;
-        Picasso.get().load(new File(filePath))
+        int size = BPConfig.screenWidth / 3;
+        Picasso.get().
+                load(new File(filePath))
                 .placeholder(R.drawable.empty_photo)
                 .error(R.drawable.empty_photo)
                 .resize(size, size)
                 .centerCrop()
                 .into(holder.imageView);
         return convertView;
+    }
+
+    public void setSign(boolean sign) {
+        isSign = sign;
     }
 
     private class ViewHolder {

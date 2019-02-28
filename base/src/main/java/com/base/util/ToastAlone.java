@@ -10,6 +10,9 @@ public class ToastAlone {
 
     private static Toast mToast = null;
 
+    private ToastAlone() {
+    }
+
     public static void showToast(Context context, String text, int duration) {
         if (mToast == null) {
             mToast = Toast.makeText(context, text, duration);

@@ -7,12 +7,12 @@ package com.base.view;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
-import android.content.Intent;
 import android.graphics.Bitmap;
-import android.net.Uri;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
+import android.webkit.ConsoleMessage;
 import android.webkit.JsPromptResult;
 import android.webkit.JsResult;
 import android.webkit.WebChromeClient;
@@ -34,25 +34,16 @@ import com.base.R;
  */
 public class ProgressWebView extends LinearLayout {
 
+    private static final String TAG = "ProgressWebView";
+    Context context;
     WebView mWebView;
     ProgressBar mProgressBar;
-
-    private Context mContext;
-
     private String url;
-    private Boolean isCache = false;
-
     private String js = "";
-    //	private String errorHtml = "<html><head><meta charset='UTF-8'></head><body><br><br><br><br><br><br><br><div align='center' style='font-size: smaller'  onclick='window.android.refresh()' ><a href='http://www.baidu.com' style='text-decoration: none'>暂无数据 <br/> 点击调用android方法 </a></div></body></html>";
-    private String backUrl;
-    public int shouye = 0;
-
-
 
     public ProgressWebView(Context context) {
         this(context, null);
     }
-
 
     public ProgressWebView(Context context, AttributeSet attrs) {
         this(context, attrs, 0);
@@ -60,7 +51,6 @@ public class ProgressWebView extends LinearLayout {
 
     public ProgressWebView(Context context, AttributeSet attrs, int defStyle) {
         super(context, attrs, defStyle);
-        this.mContext = context;
         initView(context);
     }
 
@@ -68,6 +58,7 @@ public class ProgressWebView extends LinearLayout {
         View view = View.inflate(context, R.layout.view_web_progress, this);
         mWebView = view.findViewById(R.id.web_view);
         mProgressBar = view.findViewById(R.id.progress_bar);
+        this.context = context;
         initWebview();
 
     }
@@ -91,10 +82,6 @@ public class ProgressWebView extends LinearLayout {
         this.js = js;
     }
 
-    public void setIsCache(Boolean isCache) {
-        this.isCache = isCache;
-    }
-
     public void loadData(String data) {
         if (data != null) {
             mWebView.loadData(data, "text/html;charset=UTF-8", null);
@@ -103,10 +90,8 @@ public class ProgressWebView extends LinearLayout {
 
     @SuppressLint("JavascriptInterface")
     private void initWebview() {
-
-        mWebView.addJavascriptInterface(this, "android");
+        mWebView.addJavascriptInterface(context, "android");
         WebSettings webSettings = mWebView.getSettings();
-
         webSettings.setLayoutAlgorithm(WebSettings.LayoutAlgorithm.NARROW_COLUMNS);
         webSettings.setJavaScriptEnabled(true);
         // 设置可以访问文件
@@ -118,25 +103,19 @@ public class ProgressWebView extends LinearLayout {
         // 设置出现缩放工具
         webSettings.setBuiltInZoomControls(false);
         webSettings.setDefaultFontSize(16);
-
+        mWebView.setScrollBarStyle(View.SCREEN_STATE_OFF);
+        webSettings.setUseWideViewPort(true);
+        webSettings.setLoadWithOverviewMode(true);
+        webSettings.setAppCacheEnabled(true);
+        mWebView.getSettings().setDomStorageEnabled(true);
+        mWebView.getSettings().setSaveFormData(true);// 保存表单数据
         // 设置WebViewClient
         mWebView.setWebViewClient(new WebViewClient() {
             // url拦截
             @Override
             public boolean shouldOverrideUrlLoading(WebView view, String url) {
-                // 使用自己的WebView组件来响应Url加载事件，而不是使用默认浏览器器加载页面
-                if (url.startsWith("alipays:")) {
-                    Uri uri = Uri.parse(url);
-                    Intent intent = new Intent(Intent.ACTION_VIEW, uri);
-                    mContext.startActivity(intent);
-                } else if (url.startsWith("wwee://")) {
-                    return true;
-                } else {
-                    view.loadUrl(url);
-                }
-                // 相应完成返回true
+                view.loadUrl(url);
                 return true;
-                // return super.shouldOverrideUrlLoading(view, url);
             }
 
             // 页面开始加载
@@ -158,12 +137,13 @@ public class ProgressWebView extends LinearLayout {
             // WebView加载的所有资源url
             @Override
             public void onLoadResource(WebView view, String url) {
+                Log.i(TAG, "onLoadResource");
                 super.onLoadResource(view, url);
             }
 
             @Override
             public void onReceivedError(WebView view, int errorCode, String description, String failingUrl) {
-//				view.loadData(errorHtml, "text/html; charset=UTF-8", null);
+                Log.i(TAG, "onReceivedError");
                 super.onReceivedError(view, errorCode, description, failingUrl);
             }
 
@@ -174,26 +154,29 @@ public class ProgressWebView extends LinearLayout {
             @Override
             // 处理javascript中的alert
             public boolean onJsAlert(WebView view, String url, String message, final JsResult result) {
+                Log.d(TAG, "onJsAlert:" + message);
                 return super.onJsAlert(view, url, message, result);
             }
-
-            ;
 
             @Override
             // 处理javascript中的confirm
             public boolean onJsConfirm(WebView view, String url, String message, final JsResult result) {
+                Log.d(TAG, "onJsConfirm:" + message);
                 return super.onJsConfirm(view, url, message, result);
             }
 
-            ;
+            @Override
+            public boolean onConsoleMessage(ConsoleMessage consoleMessage) {
+                Log.e(TAG, "JsConsole:" + consoleMessage.message());
+                return super.onConsoleMessage(consoleMessage);
+            }
 
             @Override
             // 处理javascript中的prompt
-            public boolean onJsPrompt(WebView view, String url, String message, String defaultValue, final JsPromptResult result) {
+            public boolean onJsPrompt(WebView view, String url, String message, String defaultValue, JsPromptResult result) {
+                Log.d(TAG, "onJsPrompt:" + message);
                 return super.onJsPrompt(view, url, message, defaultValue, result);
             }
-
-            ;
 
             // 设置网页加载的进度条
             @Override
@@ -205,32 +188,19 @@ public class ProgressWebView extends LinearLayout {
             // 设置程序的Title
             @Override
             public void onReceivedTitle(WebView view, String title) {
+                Log.d(TAG, "onReceivedTitle:" + title);
                 super.onReceivedTitle(view, title);
             }
         });
-        mWebView.setOnKeyListener(new OnKeyListener() {
-            @Override
-            public boolean onKey(View v, int keyCode, KeyEvent event) {
-                if (event.getAction() == KeyEvent.ACTION_DOWN) {
-                    if (keyCode == KeyEvent.KEYCODE_BACK && mWebView.canGoBack()) { // 表示按返回键
-
-                        mWebView.goBack(); // 后退
-
-                        // webview.goForward();//前进
-                        return true; // 已处理
-                    }
+        mWebView.setOnKeyListener((v, keyCode, event) -> {
+            if (event.getAction() == KeyEvent.ACTION_DOWN) {
+                if (keyCode == KeyEvent.KEYCODE_BACK && mWebView.canGoBack()) { // 表示按返回键
+                    mWebView.goBack(); // 后退
+                    return true; // 已处理
                 }
-                return false;
             }
-        });
-    }
-
-    public boolean canBack() {
-        if (mWebView.canGoBack()) {
-            mWebView.goBack();
             return false;
-        }
-        return true;
+        });
     }
 
 }

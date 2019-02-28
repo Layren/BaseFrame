@@ -17,22 +17,25 @@ import java.io.StreamCorruptedException;
 
 public class LoginManager {
 
-    private static String KEY = "userInfo";
-    private static String FILENAME = "";
+    private static final String KEY = "userInfo";
+    private static String fileName = "";
 
-    public static void setFILENAME(String FILENAME) {
-        LoginManager.FILENAME = FILENAME;
+    private LoginManager() {
+    }
+
+    public static void setFileName(String fileName) {
+        LoginManager.fileName = fileName;
     }
 
     public static void clear(Context context) {
-        SharedPreferences.Editor sharedata = context.getSharedPreferences(FILENAME, 0).edit();
+        SharedPreferences.Editor sharedata = context.getSharedPreferences(fileName, 0).edit();
         sharedata.clear().apply();
     }
 
     public static void saveObject(Context context, Object obj) {
         try {
             // 保存对象
-            SharedPreferences.Editor sharedata = context.getSharedPreferences(FILENAME, 0).edit();
+            SharedPreferences.Editor sharedata = context.getSharedPreferences(fileName, 0).edit();
             //先将序列化结果写到byte缓存中，其实就分配一个内存空间
             ByteArrayOutputStream bos = new ByteArrayOutputStream();
             ObjectOutputStream os = new ObjectOutputStream(bos);
@@ -61,10 +64,10 @@ public class LoginManager {
         if (bArray.length == 0) {
             return "";
         }
-        StringBuffer sb = new StringBuffer(bArray.length);
+        StringBuilder sb = new StringBuilder(bArray.length);
         String sTemp;
-        for (int i = 0; i < bArray.length; i++) {
-            sTemp = Integer.toHexString(0xFF & bArray[i]);
+        for (byte aBArray : bArray) {
+            sTemp = Integer.toHexString(0xFF & aBArray);
             if (sTemp.length() < 2)
                 sb.append(0);
             sb.append(sTemp.toUpperCase());
@@ -80,59 +83,54 @@ public class LoginManager {
      */
     public static Object readObject(Context context) {
         try {
-            SharedPreferences sharedata = context.getSharedPreferences(FILENAME, 0);
+            SharedPreferences sharedata = context.getSharedPreferences(fileName, 0);
             if (sharedata.contains(KEY)) {
                 String string = sharedata.getString(KEY, "");
                 if (TextUtils.isEmpty(string)) {
                     return null;
                 } else {
                     //将16进制的数据转为数组，准备反序列化
-                    byte[] stringToBytes = StringToBytes(string);
+                    byte[] stringToBytes = stringToBytes(string);
                     ByteArrayInputStream bis = new ByteArrayInputStream(stringToBytes);
                     ObjectInputStream is = new ObjectInputStream(bis);
                     //返回反序列化得到的对象
-                    Object readObject = is.readObject();
-                    return readObject;
+                    return is.readObject();
                 }
             }
-        } catch (StreamCorruptedException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
-            e.printStackTrace();
-        } catch (ClassNotFoundException e) {
+        } catch (ClassNotFoundException | IOException e) {
             e.printStackTrace();
         }
         return null;
 
     }
 
-    private static byte[] StringToBytes(String data) {
+    private static byte[] stringToBytes(String data) {
+        byte[] nullData = new byte[]{};
         String hexString = data.toUpperCase().trim();
         if (hexString.length() % 2 != 0) {
-            return null;
+            return nullData;
         }
         byte[] retData = new byte[hexString.length() / 2];
-        for (int i = 0; i < hexString.length(); i++) {
-            int int_ch;  // 两位16进制数转化后的10进制数
-            char hex_char1 = hexString.charAt(i); ////两位16进制数中的第一位(高位*16)
-            int int_ch3;
-            if (hex_char1 >= '0' && hex_char1 <= '9')
-                int_ch3 = (hex_char1 - 48) * 16;   //// 0 的Ascll - 48
-            else if (hex_char1 >= 'A' && hex_char1 <= 'F')
-                int_ch3 = (hex_char1 - 55) * 16; //// A 的Ascll - 65
+        for (int i = 0; i < hexString.length(); i += 2) {
+            int intCh;  // 两位16进制数转化后的10进制数
+            char hexChar1 = hexString.charAt(i); ////两位16进制数中的第一位(高位*16)
+            int intCh3;
+            if (hexChar1 >= '0' && hexChar1 <= '9')
+                intCh3 = (hexChar1 - 48) * 16;   //// 0 的Ascll - 48
+            else if (hexChar1 >= 'A' && hexChar1 <= 'F')
+                intCh3 = (hexChar1 - 55) * 16; //// A 的Ascll - 65
             else
-                return null;
-            i++;
-            char hex_char2 = hexString.charAt(i); ///两位16进制数中的第二位(低位)
-            int int_ch4;
-            if (hex_char2 >= '0' && hex_char2 <= '9')
-                int_ch4 = (hex_char2 - 48); //// 0 的Ascll - 48
-            else if (hex_char2 >= 'A' && hex_char2 <= 'F')
-                int_ch4 = hex_char2 - 55; //// A 的Ascll - 65
+                return nullData;
+            char hexChar2 = hexString.charAt(i + 1); ///两位16进制数中的第二位(低位)
+            int intCh4;
+            if (hexChar2 >= '0' && hexChar2 <= '9')
+                intCh4 = (hexChar2 - 48); //// 0 的Ascll - 48
+            else if (hexChar2 >= 'A' && hexChar2 <= 'F')
+                intCh4 = hexChar2 - 55; //// A 的Ascll - 65
             else
-                return null;
-            int_ch = int_ch3 + int_ch4;
-            retData[i / 2] = (byte) int_ch;//将转化后的数放入Byte里
+                return nullData;
+            intCh = intCh3 + intCh4;
+            retData[(i + 1) / 2] = (byte) intCh;//将转化后的数放入Byte里
         }
         return retData;
     }

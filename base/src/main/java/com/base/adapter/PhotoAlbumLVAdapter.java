@@ -14,17 +14,17 @@ import com.base.model.PhotoAlbumLVItem;
 import com.squareup.picasso.Picasso;
 
 import java.io.File;
-import java.util.ArrayList;
+import java.util.List;
 
 /**
  * 选择相册页面,ListView的adapter Created by hanj on 14-10-14.
  */
 public class PhotoAlbumLVAdapter extends BaseAdapter {
     private Context context;
-    private ArrayList<PhotoAlbumLVItem> list;
+    private List<PhotoAlbumLVItem> list;
 
 
-    public PhotoAlbumLVAdapter(Context context, ArrayList<PhotoAlbumLVItem> list) {
+    public PhotoAlbumLVAdapter(Context context, List<PhotoAlbumLVItem> list) {
         this.context = context;
         this.list = list;
     }
@@ -51,8 +51,8 @@ public class PhotoAlbumLVAdapter extends BaseAdapter {
             convertView = LayoutInflater.from(context).inflate(R.layout.photo_album_lv_item, null);
             holder = new ViewHolder();
 
-            holder.firstImageIV = (ImageView) convertView.findViewById(R.id.select_img_gridView_img);
-            holder.pathNameTV = (TextView) convertView.findViewById(R.id.select_img_gridView_path);
+            holder.firstImageIV = convertView.findViewById(R.id.select_img_gridView_img);
+            holder.pathNameTV = convertView.findViewById(R.id.select_img_gridView_path);
             convertView.setTag(holder);
         } else {
             holder = (ViewHolder) convertView.getTag();
@@ -61,7 +61,7 @@ public class PhotoAlbumLVAdapter extends BaseAdapter {
         // 图片（缩略图＄1�7�1�7
         String filePath = list.get(position).getFirstImagePath();
         holder.firstImageIV.setTag(filePath);
-        int size = (int) (60 * BPConfig.DENSITY);
+        int size = (int) (60 * BPConfig.density);
         Picasso.get().load(new File(filePath))
                 .placeholder(R.drawable.empty_photo)
                 .error(R.drawable.empty_photo)

@@ -1,19 +1,20 @@
 package com.base.util;
 
 import android.app.Activity;
-import android.content.Context;
 
+import java.util.ArrayDeque;
 import java.util.ArrayList;
+import java.util.Deque;
 import java.util.List;
 import java.util.Stack;
 
 /**
  * Created by GaoTing on 2018/6/20.
- *
- * @TODO :应用程序Activity管理类：用于Activity管理和应用程序退出
+ * <p>
+ * Explain :应用程序Activity管理类：用于Activity管理和应用程序退出
  */
 public class ActivityManager {
-    private static Stack<Activity> activityStack;
+    private static Deque<Activity> activityStack;
     private static ActivityManager instance;
 
     /**
@@ -33,7 +34,7 @@ public class ActivityManager {
      */
     private void initActivityStack() {
         if (activityStack == null) {
-            activityStack = new Stack<>();
+            activityStack = new ArrayDeque<>();
         }
     }
 
@@ -53,8 +54,7 @@ public class ActivityManager {
      * @return
      */
     public Activity currentActivity() {
-        Activity activity = activityStack.lastElement();
-        return activity;
+        return activityStack.getLast();
     }
 
     /**
@@ -71,20 +71,16 @@ public class ActivityManager {
      * 结束当前Activity（堆栈中最后一个压入的）
      */
     public void finishActivity() {
-        //获取到当前Activity
-        Activity activity = activityStack.lastElement();
-        //结束指定Activity
-        finishActivity(activity);
+        finishActivity(activityStack.getLast());
     }
 
     /**
      * 结束指定类名的Activity
      */
     public void finishActivity(Class<?> cls) {
-        List<Activity> activities = new ArrayList<Activity>();
+        List<Activity> activities = new ArrayList<>();
         for (Activity activity : activityStack) {
             if (activity.getClass().equals(cls)) {
-                // finishActivity(activity);
                 activities.add(activity);
             }
         }
@@ -99,13 +95,8 @@ public class ActivityManager {
      * 结束所有Activity
      */
     public void finishAllActivity() {
-        for (int i = 0, size = activityStack.size(); i < size; i++) {
-            if (null != activityStack.get(i)) {
-                Activity activity = activityStack.get(i);
-                if (!activity.isFinishing()) {
-                    activity.finish();
-                }
-            }
+        while (!activityStack.isEmpty()) {
+            activityStack.pop().finish();
         }
         activityStack.clear();
     }
@@ -114,13 +105,8 @@ public class ActivityManager {
      * 结束非当前Activity
      */
     public void finishNoCurActivity() {
-        for (int i = 1, size = activityStack.size(); i < size; i++) {
-            if (null != activityStack.get(i)) {
-                Activity activity = activityStack.get(i);
-                if (!activity.isFinishing()) {
-                    activity.finish();
-                }
-            }
+        while (activityStack.size() > 1) {
+            activityStack.pop().finish();
         }
         activityStack.clear();
     }
@@ -135,16 +121,11 @@ public class ActivityManager {
      * 它能有效的释放JVM之外的资源,执行清除任务，运行相关的finalizer方法终结对象，
      * 而finish只是退出了Activity。
      */
-    public void AppExit(Context context) {
+    public void appExit() {
         try {
             finishAllActivity();
-            //DalvikVM的本地方法
-            // 杀死该应用进程
-            //android.os.Process.killProcess(android.os.Process.myPid());
-            //System.exit(0);
-            //这些方法如果是放到主Activity就可以退出应用，如果不是主Activity
-            //就是退出当前的Activity
         } catch (Exception e) {
+            e.printStackTrace();
         }
     }
 }

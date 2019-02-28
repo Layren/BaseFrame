@@ -1,6 +1,5 @@
 package com.base.galleryview;
 
-import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 
@@ -25,9 +24,9 @@ public class GalleryView {
      * @param list  图片list<PhotoItem>
      * @param index 点击图片 position
      */
-    public void onClickImage(ArrayList<PhotoItem> list, int index) {
+    public void onClickImage(List<PhotoItem> list, int index) {
         Intent intent = new Intent(context, ImagePagerActivity.class);
-        intent.putExtra(BPConfig.EXTRA_IMAGE_URLS, list);
+        intent.putExtra(BPConfig.EXTRA_IMAGE_URLS, new ArrayList<>().addAll(list));
         intent.putExtra(BPConfig.EXTRA_IMAGE_INDEX, index);
         context.startActivity(intent);
     }

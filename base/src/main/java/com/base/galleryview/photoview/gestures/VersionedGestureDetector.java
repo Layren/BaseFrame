@@ -3,6 +3,8 @@ package com.base.galleryview.photoview.gestures;
 import android.content.Context;
 
 public final class VersionedGestureDetector {
+    private VersionedGestureDetector() {
+    }
 
     public static GestureDetector newInstance(Context context, OnGestureListener listener) {
         GestureDetector detector = new FroyoGestureDetector(context);

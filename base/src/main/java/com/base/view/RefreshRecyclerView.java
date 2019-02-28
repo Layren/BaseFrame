@@ -29,8 +29,8 @@ import java.util.List;
 
 public class RefreshRecyclerView extends LinearLayout {
     private View view;
-    public SwipeRefreshLayout reLayout;
-    public RecyclerView reView;
+    private SwipeRefreshLayout reLayout;
+    private RecyclerView reView;
 
     private Context context;
     private FullyGridLayoutManager manager;
@@ -58,14 +58,6 @@ public class RefreshRecyclerView extends LinearLayout {
         init();
     }
 
-    /**
-     * @since 1.1
-     * 请使用@getRecyclerView();方法
-     */
-    @Deprecated
-    public RecyclerView getReView() {
-        return reView;
-    }
 
     public RecyclerView getRecyclerView() {
         return reView;
@@ -84,12 +76,9 @@ public class RefreshRecyclerView extends LinearLayout {
         reView = view.findViewById(R.id.RecyclerView_RefreshRecyclerView);
         if (hideRefresh) hideRefreshView();
         reLayout.setColorSchemeColors(0xffffff00, 0xffff00ff, 0xff00ffff);
-        reLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
-            @Override
-            public void onRefresh() {
-                if (listener != null)
-                    listener.onRefresh();
-            }
+        reLayout.setOnRefreshListener(() -> {
+            if (listener != null)
+                listener.onRefresh();
         });
         manager = new FullyGridLayoutManager(context, count, adapter);
         manager.setOrientation(GridLayoutManager.VERTICAL);
@@ -153,9 +142,8 @@ public class RefreshRecyclerView extends LinearLayout {
 
 
     public void setRefreshing(final boolean refreshing) {
-        if (refreshing) {
-            if (listener != null)
-                listener.onRefresh();
+        if (refreshing && listener != null) {
+            listener.onRefresh();
         }
         if (adapter != null)
             adapter.setEnableLoadMore(true);

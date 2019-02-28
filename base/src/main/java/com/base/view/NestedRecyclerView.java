@@ -18,7 +18,7 @@ import java.util.List;
 /**
  * Created by GaoTing on 2018/11/1.
  *
- * @TODO :嵌套 RecyclerView
+ * Explain :嵌套 RecyclerView
  */
 public class NestedRecyclerView extends RecyclerView {
     private Context context;

@@ -16,25 +16,27 @@ public class BPBroadcastReceiver extends BroadcastReceiver {
     @Override
     public void onReceive(Context context, Intent intent) {
         if (context.getPackageName().equals(intent.getAction()))
-            switch (intent.getIntExtra("brType", -1)) {
-                case BroadType.APPEXP:
+            switch ((BroadType) intent.getSerializableExtra("brType")) {
+                case APPEXP:
                     break;
-                case BroadType.OTHER_LOGIN:
+                case OTHER_LOGIN:
                     //帐号异地登录
                     ((Activity) context).finish();
                     break;
-                case BroadType.TEST:
+                case TEST:
                     Toast.makeText(context, "收到了广播", Toast.LENGTH_SHORT).show();
+                    break;
+                default:
                     break;
             }
     }
 
-    public static class BroadType {
+    public enum BroadType {
         //程序异常
-        public static final int APPEXP = 101;
+        APPEXP,
         //异地登录
-        public static final int OTHER_LOGIN = 102;
+        OTHER_LOGIN,
         //测试
-        public static final int TEST = 99;
+        TEST;
     }
 }

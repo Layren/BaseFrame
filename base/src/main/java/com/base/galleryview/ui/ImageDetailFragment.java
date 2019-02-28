@@ -11,7 +11,6 @@ import android.widget.ProgressBar;
 import com.base.config.BPConfig;
 import com.base.galleryview.photoview.PhotoViewAttacher;
 import com.base.R;
-import com.base.galleryview.photoview.PhotoViewAttacher.OnPhotoTapListener;
 import com.squareup.picasso.Callback;
 import com.squareup.picasso.Picasso;
 
@@ -48,18 +47,12 @@ public class ImageDetailFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         final View v = inflater.inflate(R.layout.image_detail_fragment, container, false);
-        mImageView = (ImageView) v.findViewById(R.id.image);
+        mImageView = v.findViewById(R.id.image);
         mAttacher = new PhotoViewAttacher(mImageView);
 
-        mAttacher.setOnPhotoTapListener(new OnPhotoTapListener() {
+        mAttacher.setOnPhotoTapListener((arg0, arg1, arg2) -> getActivity().finish());
 
-            @Override
-            public void onPhotoTap(View arg0, float arg1, float arg2) {
-                getActivity().finish();
-            }
-        });
-
-        progressBar = (ProgressBar) v.findViewById(R.id.loading);
+        progressBar = v.findViewById(R.id.loading);
         return v;
     }
 
@@ -68,7 +61,7 @@ public class ImageDetailFragment extends Fragment {
         super.onActivityCreated(savedInstanceState);
         progressBar.setVisibility(View.VISIBLE);
         if (BPConfig.HTTP_URL.equals(mType))
-            Picasso.get().load(mImageUrl).resize(BPConfig.SCREEN_WIDTH, BPConfig.SCREEN_HEIGHT).centerInside().into(mImageView, new Callback() {
+            Picasso.get().load(mImageUrl).resize(BPConfig.screenWidth, BPConfig.screenHeight).centerInside().into(mImageView, new Callback() {
 
                 @Override
                 public void onSuccess() {
@@ -84,7 +77,7 @@ public class ImageDetailFragment extends Fragment {
 
             });
         else if (BPConfig.LOCAL_FILE.equals(mType))
-            Picasso.get().load(new File(mImageUrl)).resize(BPConfig.SCREEN_WIDTH, BPConfig.SCREEN_HEIGHT).centerInside().into(mImageView,
+            Picasso.get().load(new File(mImageUrl)).resize(BPConfig.screenWidth, BPConfig.screenHeight).centerInside().into(mImageView,
                     new Callback() {
 
                         @Override

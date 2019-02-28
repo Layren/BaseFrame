@@ -49,9 +49,9 @@ public class MainActivity extends BaseActivity {
 
     @Override
     protected void initView() {
-        boolean isStorage = PermissionManager.Query(this, PermissionManager.STORAGE);
+        boolean isStorage = PermissionManager.query(this, PermissionManager.STORAGE);
         if (!isStorage) {
-            PermissionManager.Granted(this, PermissionManager.STORAGE, 1);
+            PermissionManager.granted(this, PermissionManager.STORAGE, 1);
         }
         findViewById(R.id.text_v).setOnClickListener(v -> goActivity(AddPhotoActivity.class));
         recyclerView.setMultiAdapter(((holder, item, itemType) -> {

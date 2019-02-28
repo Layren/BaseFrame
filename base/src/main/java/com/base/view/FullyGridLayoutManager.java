@@ -36,8 +36,6 @@ public class FullyGridLayoutManager extends GridLayoutManager {
         try {
             if (adapter != null) {
                 int measuredWidth = View.MeasureSpec.getSize(widthSpec);
-                int line = adapter.getItemCount() / getSpanCount();
-                if (adapter.getItemCount() % getSpanCount() > 0) line++;
                 int measuredHeight = adapter.getEmptyView().getHeight();
                 setMeasuredDimension(measuredWidth, measuredHeight);
             } else {

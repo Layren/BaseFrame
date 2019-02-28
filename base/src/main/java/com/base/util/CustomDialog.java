@@ -19,10 +19,13 @@ import com.base.R;
  */
 public class CustomDialog {
 
+    private CustomDialog() {
+    }
+
     /**
      * 加载中
      */
-    public static Dialog LineDialog(final Context context) {
+    public static Dialog lineDialog(final Context context) {
         final Dialog curDialog = new Dialog(context, R.style.dialog);
         curDialog.setContentView(R.layout.dialog_common_loading_indicator);
         curDialog.setCanceledOnTouchOutside(false);
@@ -32,7 +35,7 @@ public class CustomDialog {
     /**
      * 加载中
      */
-    public static Dialog LineDialog(final Context context, String content) {
+    public static Dialog lineDialog(final Context context, String content) {
         Dialog dialog = new Dialog(context, R.style.dialog);
         dialog.setContentView(R.layout.dialog_common_loading_indicator);
         TextView textView = (TextView) dialog.findViewById(R.id.loading_info);
@@ -41,7 +44,7 @@ public class CustomDialog {
         return dialog;
     }
 
-    public static Dialog TwoBtnStringDialog(final Context context, final DialogStringInfo dialogInfo) {
+    public static Dialog twoBtnStringDialog(final Context context, final DialogStringInfo dialogInfo) {
         final Dialog dialog = new Dialog(context, R.style.dialog);
         dialog.setContentView(R.layout.dialog_common_two_btn);
         TextView title = dialog.findViewById(R.id.dialog_two_btn_title);
@@ -57,44 +60,32 @@ public class CustomDialog {
             content.setText(dialogInfo.getContent());
         }
         content.setGravity(dialogInfo.getType());
-        Button btnLeft = (Button) dialog.findViewById(R.id.dialog_two_btn_left);
+        Button btnLeft = dialog.findViewById(R.id.dialog_two_btn_left);
         if (null == dialogInfo.getLeftBtnText()) {
             btnLeft.setText("取消");
         } else {
             btnLeft.setText(dialogInfo.getLeftBtnText());
         }
 
-        btnLeft.setOnClickListener(new OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                dialogInfo.LeftBtnClick(v);
-            }
-        });
-        Button btnRight = (Button) dialog.findViewById(R.id.dialog_two_btn_right);
-        btnRight.setTextColor(BPConfig.APP_THEME_COLOR);
+        btnLeft.setOnClickListener(v -> dialogInfo.leftBtnClick(v));
+        Button btnRight = dialog.findViewById(R.id.dialog_two_btn_right);
+        btnRight.setTextColor(BPConfig.appThemeColor);
         if (null == dialogInfo.getRightBtnText()) {
             btnRight.setText("确认");
         } else {
             btnRight.setText(dialogInfo.getRightBtnText());
         }
 
-        btnRight.setOnClickListener(new OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                dialogInfo.RightBtnClick(v, "");
-            }
-        });
-
-        dialog.setCancelable(dialogInfo.isCancelable);
+        btnRight.setOnClickListener(v -> dialogInfo.rightBtnClick(v, ""));
 
         WindowManager.LayoutParams lp = dialog.getWindow().getAttributes();
-        lp.width = BPConfig.SCREEN_WIDTH; // 设置宽度
+        lp.width = BPConfig.screenWidth; // 设置宽度
         dialog.getWindow().setAttributes(lp);
 
         return dialog;
     }
 
-    public static Dialog SinglaBtnStringDialog(final Context context, final DialogStringInfo dialogInfo) {
+    public static Dialog singlaBtnStringDialog(final Context context, final DialogStringInfo dialogInfo) {
         final Dialog dialog = new Dialog(context, R.style.dialog);
         dialog.setContentView(R.layout.dialog_common_two_btn);
         TextView title = dialog.findViewById(R.id.dialog_two_btn_title);
@@ -111,31 +102,23 @@ public class CustomDialog {
         }
         content.setGravity(dialogInfo.getType());
 
-        Button btnLeft = (Button) dialog.findViewById(R.id.dialog_two_btn_left);
+        Button btnLeft = dialog.findViewById(R.id.dialog_two_btn_left);
         btnLeft.setVisibility(View.GONE);
 
-        View view = (View) dialog.findViewById(R.id.dialog_two_view_middle);
+        View view = dialog.findViewById(R.id.dialog_two_view_middle);
         view.setVisibility(View.GONE);
 
-        Button btnRight = (Button) dialog.findViewById(R.id.dialog_two_btn_right);
-        btnRight.setTextColor(BPConfig.APP_THEME_COLOR);
+        Button btnRight = dialog.findViewById(R.id.dialog_two_btn_right);
+        btnRight.setTextColor(BPConfig.appThemeColor);
         if (null == dialogInfo.getMiddleText()) {
             btnRight.setText("确认");
         } else {
             btnRight.setText(dialogInfo.getMiddleText());
         }
 
-        btnRight.setOnClickListener(new OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                dialogInfo.RightBtnClick(v, "");
-            }
-        });
-
-        dialog.setCancelable(dialogInfo.isCancelable);
-
+        btnRight.setOnClickListener(v -> dialogInfo.rightBtnClick(v, ""));
         WindowManager.LayoutParams lp = dialog.getWindow().getAttributes();
-        lp.width = BPConfig.SCREEN_WIDTH; // 设置宽度
+        lp.width = BPConfig.screenWidth; // 设置宽度
         dialog.getWindow().setAttributes(lp);
 
         return dialog;

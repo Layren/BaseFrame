@@ -11,7 +11,6 @@ import android.widget.TextView;
 
 import com.base.BPApplication;
 import com.base.baseClass.BaseActivity;
-import com.base.config.BPConfig;
 import com.base.config.RequestCode;
 import com.base.galleryview.GalleryView;
 import com.base.model.PhotoItem;
@@ -20,9 +19,7 @@ import com.base.net.MCBaseAPI;
 import com.base.R;
 import com.base.view.ItemDecoration;
 import com.base.view.RefreshRecyclerView;
-import com.chad.library.adapter.base.BaseQuickAdapter;
 import com.chad.library.adapter.base.BaseViewHolder;
-import com.chad.library.adapter.base.listener.OnItemChildClickListener;
 import com.squareup.picasso.Callback;
 import com.squareup.picasso.Picasso;
 
@@ -31,7 +28,6 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.InputStream;
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.LinkedHashSet;
 
 /**
@@ -41,12 +37,9 @@ public class AddPhotoActivity extends BaseActivity implements OnClickListener {
 
     private RefreshRecyclerView recyclerView;
     private ArrayList<Object> list = new ArrayList<>();
-    private TextView hint;
-    private boolean isEdit = false;
-    private LinkedHashSet<String> Urls = new LinkedHashSet<>();
-    private ArrayList<InputStream> Streams = new ArrayList<>();
-    private PhotoSelectRecord PhotoSR;
-    private int MAX_PAGE = 9;
+    private LinkedHashSet<String> urls = new LinkedHashSet<>();
+    private ArrayList<InputStream> streams = new ArrayList<>();
+    private int maxPage = 9;
     private PickPhoto pickPhoto;
     private PickPhoto.PickPhotoCall call;
 
@@ -70,15 +63,15 @@ public class AddPhotoActivity extends BaseActivity implements OnClickListener {
     }
 
     private void init() {
-        hint = findViewById(R.id.tv_hint_addphoto);
-        PhotoSR = (PhotoSelectRecord) getIntent().getSerializableExtra("PhotoSelectRecord");
-        MAX_PAGE = getIntent().getIntExtra("maxPage", 9);
+        TextView hint = findViewById(R.id.tv_hint_addphoto);
+        PhotoSelectRecord photoSR = (PhotoSelectRecord) getIntent().getSerializableExtra("PhotoSelectRecord");
+        maxPage = getIntent().getIntExtra("maxPage", 9);
         hint.setText(getIntent().getStringExtra("hint"));
-        if (PhotoSR != null) {
+        if (photoSR != null) {
             list.clear();
-            list.addAll(PhotoSR.getItemList());
-            Urls.clear();
-            Urls.addAll(PhotoSR.getUrls());
+            list.addAll(photoSR.getItemList());
+            urls.clear();
+            urls.addAll(photoSR.getUrls());
         } else {
             list.add(new PhotoItem());
         }
@@ -87,38 +80,35 @@ public class AddPhotoActivity extends BaseActivity implements OnClickListener {
         recyclerView.addItemDecoration(new ItemDecoration(1, Color.GRAY));
         setRecyclerViewAdapter(recyclerView, R.layout.item_addphoto);
         recyclerView.setData(list);
-        recyclerView.getAdapter().setOnItemChildClickListener(new BaseQuickAdapter.OnItemChildClickListener() {
-            @Override
-            public void onItemChildClick(BaseQuickAdapter adapter, View view, int position) {
-                if (view.getId() == R.id.item_event_photo_delete) {
-                    list.remove(position);
-                    Urls.remove(position);
-                    notifyData();
-                } else if (view.getId() == R.id.item_event_photo_img) {
-                    if (position == list.size() - 1) {
-                        if (Urls.size() >= MAX_PAGE) {
-                            showToast("最多选择" + MAX_PAGE + "张");
-                            return;
-                        }
-                        pickPhoto.showMenu(call);
+        recyclerView.getAdapter().setOnItemChildClickListener((adapter, view, position) -> {
+            if (view.getId() == R.id.item_event_photo_delete) {
+                list.remove(position);
+                urls.remove(((PhotoItem) list.get(position - 1)).getUrl());
+                notifyData();
+            } else if (view.getId() == R.id.item_event_photo_img) {
+                if (position == list.size() - 1) {
+                    if (urls.size() >= maxPage) {
+                        showToast("最多选择" + maxPage + "张");
                         return;
                     }
-                    ArrayList<PhotoItem> lists = new ArrayList<>();
-                    for (int i = 0; i < list.size() - 1; i++) {
-                        PhotoItem item = (PhotoItem) list.get(i);
-                        PhotoItem item2 = new PhotoItem();
-                        item2.setNet(item.isNet());
-                        item2.setUrl(MCBaseAPI.API_FILES + item.getUrl());
-                        lists.add(item2);
-                    }
-                    galleryView.onClickImage(lists, position);
+                    pickPhoto.showMenu(call);
+                    return;
                 }
+                ArrayList<PhotoItem> lists = new ArrayList<>();
+                for (int i = 0; i < list.size() - 1; i++) {
+                    PhotoItem item = (PhotoItem) list.get(i);
+                    PhotoItem item2 = new PhotoItem();
+                    item2.setNet(item.isNet());
+                    item2.setUrl(MCBaseAPI.API_FILES + item.getUrl());
+                    lists.add(item2);
+                }
+                galleryView.onClickImage(lists, position);
             }
         });
     }
 
     private void notifyData() {
-        Streams.clear();
+        streams.clear();
         recyclerView.notifyDataSetChanged();
     }
 
@@ -134,16 +124,13 @@ public class AddPhotoActivity extends BaseActivity implements OnClickListener {
 
     private void initPop() {
         pickPhoto = new PickPhoto(this);
-        pickPhoto.setImagePath(BPApplication.getCACHE_PATH());
-        call = new PickPhoto.PickPhotoCall() {
-            @Override
-            public void onBack(PhotoSelectRecord psr) {
-                Urls.clear();
-                list.clear();
-                Urls.addAll(psr.getUrls());
-                list.addAll(psr.getItemList());
-                notifyData();
-            }
+        pickPhoto.setImagePath(BPApplication.getCachePath());
+        call = psr -> {
+            urls.clear();
+            list.clear();
+            urls.addAll(psr.getUrls());
+            list.addAll(psr.getItemList());
+            notifyData();
         };
     }
 
@@ -153,14 +140,10 @@ public class AddPhotoActivity extends BaseActivity implements OnClickListener {
     }
 
     private void save() {
-        if (isEdit) {
-            showToast("请完成编辑再保存");
-            return;
-        }
         PhotoSelectRecord psr = new PhotoSelectRecord();
         psr.setItemList(list);
-        psr.setUrls(Urls);
-        psr.setStreams(Streams);
+        psr.setUrls(urls);
+        psr.setStreams(streams);
         Intent data = new Intent();
         data.putExtra("PhotoSelectRecord", psr);
         setResult(RequestCode.ADD_PHOTO_RESULT, data);
@@ -192,7 +175,7 @@ public class AddPhotoActivity extends BaseActivity implements OnClickListener {
                         ByteArrayOutputStream baos = new ByteArrayOutputStream();
                         bm.compress(Bitmap.CompressFormat.PNG, 100, baos);
                         InputStream isBm = new ByteArrayInputStream(baos.toByteArray());
-                        Streams.add(isBm);
+                        streams.add(isBm);
                         bm.recycle();
                     }
 
@@ -201,7 +184,7 @@ public class AddPhotoActivity extends BaseActivity implements OnClickListener {
                     }
                 });
             } else {
-                Streams.add(null);
+                streams.add(null);
                 File image = new File(photoItem.getUrl());
                 Picasso.get().load(image).resize(size, size).centerCrop().into(img);
             }

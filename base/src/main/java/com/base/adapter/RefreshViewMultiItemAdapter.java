@@ -12,8 +12,8 @@ import java.util.ArrayList;
 
 /**
  * Created by GaoTing on 2018/9/27.
- *
- * @TODO :RecyclerView多布局Adapter
+ * <p>
+ * Explain :RecyclerView多布局Adapter
  */
 public class RefreshViewMultiItemAdapter<T extends MultiModel> extends BaseMultiItemQuickAdapter<T, BaseViewHolder> {
     private RefreshViewMultiItemAdapterListener listener;
@@ -23,7 +23,7 @@ public class RefreshViewMultiItemAdapter<T extends MultiModel> extends BaseMulti
      * some initialization data.
      */
     public RefreshViewMultiItemAdapter(@NonNull RefreshViewMultiItemAdapterListener listener, @NonNull @LayoutRes int... layoutIds) {
-        super(new ArrayList());
+        super(new ArrayList<>());
         this.listener = listener;
         setViewType(layoutIds);
     }
@@ -31,7 +31,7 @@ public class RefreshViewMultiItemAdapter<T extends MultiModel> extends BaseMulti
     /**
      * 添加多布局，itemType对应layoutIds下标
      *
-     * @param layoutIds
+     * @param layoutIds 布局数组
      */
     private void setViewType(@LayoutRes int... layoutIds) {
         for (int i = 0; i < layoutIds.length; i++) {

@@ -31,19 +31,15 @@ public class PickPhoto implements PopWindows.PopWindowsViewOnCallk, View.OnClick
 
     private String photoName;
     private ArrayList<Object> list = new ArrayList<>();
-    private LinkedHashSet<String> Urls = new LinkedHashSet<>();
+    private LinkedHashSet<String> urls = new LinkedHashSet<>();
     private PickPhotoCall call;
-    private static boolean isSign;
-    private int MaxPage = 9;
+    private boolean isSign;
+    private int maxPage = 9;
 
     public PickPhoto(Activity activity) {
         this.activity = activity;
         initPickPhoto();
         list.add(new PhotoItem());
-    }
-
-    public static boolean isSign() {
-        return isSign;
     }
 
     private void initPickPhoto() {
@@ -65,7 +61,7 @@ public class PickPhoto implements PopWindows.PopWindowsViewOnCallk, View.OnClick
      */
     public void setImagePath(String path) {
         if (!TextUtils.isEmpty(path))
-            BPConfig.CAMERA_IMG_PATH = path;
+            BPConfig.cameraImgPath = path;
     }
 
     /**
@@ -73,13 +69,13 @@ public class PickPhoto implements PopWindows.PopWindowsViewOnCallk, View.OnClick
      *
      * @param name 照片名称
      */
-    private void PhotoGraph(String name) {
+    private void photoGraph(String name) {
         Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-        File f = new File(BPConfig.CAMERA_IMG_PATH, name);
+        File f = new File(BPConfig.cameraImgPath, name);
         //判断是否是AndroidN以及更高的版本
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
             intent.setFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
-            Uri contentUri = FileProvider.getUriForFile(activity, BPConfig.APPLICATION_ID + ".fileProvider", f);
+            Uri contentUri = FileProvider.getUriForFile(activity, BPConfig.appplcaitonId + ".fileProvider", f);
             intent.putExtra(MediaStore.EXTRA_OUTPUT, contentUri);
         } else {
             Uri u = Uri.fromFile(f);
@@ -94,8 +90,9 @@ public class PickPhoto implements PopWindows.PopWindowsViewOnCallk, View.OnClick
     /**
      * 相册选择
      */
-    private void AlbumSelect() {
+    private void albumSelect() {
         Intent intent = new Intent(activity, PhotoWallActivity.class);
+        intent.putExtra("sign", isSign);
         activity.startActivityForResult(intent, BPConfig.PIC_SELECT);
     }
 
@@ -108,7 +105,6 @@ public class PickPhoto implements PopWindows.PopWindowsViewOnCallk, View.OnClick
     public void showMenu(PickPhotoCall call) {
         popSetAvatar.show(Gravity.BOTTOM);
         this.call = call;
-        this.isSign = false;
     }
 
     /**
@@ -134,34 +130,34 @@ public class PickPhoto implements PopWindows.PopWindowsViewOnCallk, View.OnClick
                 }
                 // 返回的图片路径 list
                 ArrayList<String> paths = data.getStringArrayListExtra("paths");
-                if (paths != null && paths.size() > 0) {
-                    // 添加，去重
+                if (paths != null) {
                     for (String path : paths) {
-                        // 去除重复
                         String imgPath = Tool.getPath(path);
-                        AddImage(imgPath);
-                        if (Urls.size() >= MaxPage)
+                        addImage(imgPath);
+                        if (urls.size() >= maxPage)
                             break;
                     }
                 }
                 break;
             case BPConfig.PHONTO_GRAPH:
                 if (resultCode == Activity.RESULT_OK)
-                    AddImage(Tool.getPath(BPConfig.CAMERA_IMG_PATH + photoName));
+                    addImage(Tool.getPath(BPConfig.cameraImgPath + photoName));
+                break;
+            default:
                 break;
         }
 
         PhotoSelectRecord psr = new PhotoSelectRecord();
         psr.setItemList(list);
-        psr.setUrls(Urls);
+        psr.setUrls(urls);
 
         if (call != null)
             call.onBack(psr);
 
     }
 
-    private void AddImage(String path) {
-        if (!Urls.add(path)) return;
+    private void addImage(String path) {
+        if (!urls.add(path)) return;
         PhotoItem item = new PhotoItem();
         item.setUrl(path);
         list.add(list.size() - 1, item);
@@ -173,10 +169,10 @@ public class PickPhoto implements PopWindows.PopWindowsViewOnCallk, View.OnClick
         int i = v.getId();
         if (i == R.id.tv_photo_graph_pop_window_photo_menu) {
             photoName = Tool.getPhotoName();
-            PhotoGraph(photoName);
+            photoGraph(photoName);
             popSetAvatar.close();
         } else if (i == R.id.tv_album_select_pop_window_photo_menu) {
-            AlbumSelect();
+            albumSelect();
             popSetAvatar.close();
         } else if (i == R.id.tv_cancel_pop_window_photo_menu) {
             popSetAvatar.close();
@@ -186,11 +182,11 @@ public class PickPhoto implements PopWindows.PopWindowsViewOnCallk, View.OnClick
     public void setMaxPage(int maxPage) {
         if (maxPage < 1)
             maxPage = 9;
-        this.MaxPage = maxPage;
+        this.maxPage = maxPage;
     }
 
     public int getMaxPage() {
-        return MaxPage;
+        return maxPage;
     }
 
     public interface PickPhotoCall {

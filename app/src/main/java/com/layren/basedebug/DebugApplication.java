@@ -20,9 +20,9 @@ public class DebugApplication extends BPApplication {
     public void onCreate() {
         super.onCreate();
         context = getApplicationContext();
-        setCACHE_PATH("Layren");
-        setNET_PATH(NetPath);
-        setNET_FILE_PATH(NetFilePath);
+        setCachePath("Layren");
+        setNetPath(NetPath);
+        setNetFilePath(NetFilePath);
         setAppThemeColor(getResources().getString(R.color.appThemeColor), getResources().getColor(R.color.appThemeColor));
         init();
     }

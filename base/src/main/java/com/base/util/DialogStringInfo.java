@@ -12,21 +12,15 @@ public abstract class DialogStringInfo {
     private String middleText;
     private int type = Gravity.CENTER;
 
-    public boolean isCancelable = false;
-
     public static final int TYPE_LEFT = Gravity.LEFT;
     public static final int TYPE_RIGHT = Gravity.RIGHT;
 
-    public abstract void LeftBtnClick(View v);
+    public abstract void leftBtnClick(View v);
 
-    public abstract void RightBtnClick(View v, String string);
+    public abstract void rightBtnClick(View v, String string);
 
     public DialogStringInfo() {
 
-    }
-
-    public DialogStringInfo(boolean isCancelable) {
-        this.isCancelable = isCancelable;
     }
 
     public DialogStringInfo(String title, String content, String leftBtnText, String rightBtnText) {
@@ -94,10 +88,6 @@ public abstract class DialogStringInfo {
      */
     public void setType(int type) {
         this.type = type;
-    }
-
-    private void setCancelable(boolean isCancelable) {
-        this.isCancelable = isCancelable;
     }
 
 }

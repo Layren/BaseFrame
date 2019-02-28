@@ -1,6 +1,5 @@
 package com.base.view;
 
-import android.annotation.SuppressLint;
 import android.app.ActionBar.LayoutParams;
 import android.app.Activity;
 import android.graphics.Rect;
@@ -9,7 +8,6 @@ import android.support.annotation.LayoutRes;
 import android.view.Gravity;
 import android.view.MotionEvent;
 import android.view.View;
-import android.view.View.OnTouchListener;
 import android.widget.PopupWindow;
 
 import com.base.R;
@@ -18,7 +16,7 @@ public class PopWindows {
 
     private PopupWindow popupWindow;
     private Activity activity;
-    private View popupWindow_view;
+    private View popupWindowView;
     private int layoutId;
 
     /**
@@ -31,19 +29,20 @@ public class PopWindows {
     }
 
     public PopWindows initPopWindows(PopWindowsViewOnCallk popWindowsViewOnCallk) {
-        popupWindow_view = activity.getLayoutInflater().inflate(layoutId, null);
-        popupWindow = new PopupWindow(popupWindow_view, LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT, true);
+        popupWindowView = activity.getLayoutInflater().inflate(layoutId, null);
+        popupWindow = new PopupWindow(popupWindowView, LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT, true);
         popupWindow.setBackgroundDrawable(activity.getResources().getDrawable(R.drawable.touming));
-        popupWindow_view.setOnTouchListener(new OnTouchListener() {
-            @SuppressLint("ClickableViewAccessibility")
+        popupWindowView.setOnTouchListener(new View.OnTouchListener() {
+            @Override
             public boolean onTouch(View v, MotionEvent event) {
                 if (popupWindow != null && popupWindow.isShowing()) {
                     popupWindow.dismiss();
                 }
                 return false;
             }
+
         });
-        popWindowsViewOnCallk.initView(popupWindow_view);
+        popWindowsViewOnCallk.initView(popupWindowView);
         return this;
     }
 
@@ -67,11 +66,14 @@ public class PopWindows {
             case Gravity.BOTTOM:
                 popupWindow.setAnimationStyle(R.style.AnimationFadeBottom);
                 break;
+            default:
+                break;
 
         }
         popupWindow.showAtLocation(activity.getWindow().getDecorView(), gravity, 0, 0);
     }
-    public void showView(View anchorView){
+
+    public void showView(View anchorView) {
         popupWindow.setOutsideTouchable(false);
         popupWindow.setFocusable(false);
         if (Build.VERSION.SDK_INT >= 24) {
@@ -84,6 +86,7 @@ public class PopWindows {
             popupWindow.showAsDropDown(anchorView, 0, 0);
         }
     }
+
     public void close() {
         if (popupWindow != null && popupWindow.isShowing()) {
             popupWindow.dismiss();

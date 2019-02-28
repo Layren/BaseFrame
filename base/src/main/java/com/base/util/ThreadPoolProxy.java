@@ -21,11 +21,9 @@ public class ThreadPoolProxy {
     private int maximumPoolSize;
     private long keepAliveTime;
 
-    public static ThreadPoolProxy Instance() {
+    public synchronized static ThreadPoolProxy getInstance() {
         if (threadPoolProxy == null) {
-            synchronized (ThreadPoolProxy.class) {
-                threadPoolProxy = new ThreadPoolProxy(5, 10, 1);
-            }
+            threadPoolProxy = new ThreadPoolProxy(5, 10, 1);
         }
         return threadPoolProxy;
     }
@@ -36,26 +34,22 @@ public class ThreadPoolProxy {
         this.keepAliveTime = keepAliveTime;
     }
 
-    private ThreadPoolExecutor initExecutor() {
+    private synchronized ThreadPoolExecutor initExecutor() {
         if (mThreadPoolExecutor == null) {
-            synchronized (ThreadPoolProxy.class) {
-                if (mThreadPoolExecutor == null) {
 
-                    TimeUnit unit = TimeUnit.MILLISECONDS;
-                    ThreadFactory threadFactory = Executors.defaultThreadFactory();
-                    RejectedExecutionHandler handler = new ThreadPoolExecutor.AbortPolicy();
-                    LinkedBlockingQueue<Runnable> workQueue = new LinkedBlockingQueue<>();
+            TimeUnit unit = TimeUnit.MILLISECONDS;
+            ThreadFactory threadFactory = Executors.defaultThreadFactory();
+            RejectedExecutionHandler handler = new ThreadPoolExecutor.AbortPolicy();
+            LinkedBlockingQueue<Runnable> workQueue = new LinkedBlockingQueue<>();
 
-                    mThreadPoolExecutor = new ThreadPoolExecutor(
-                            corePoolSize,//核心线程数
-                            maximumPoolSize,//最大线程数
-                            keepAliveTime,//保持时间
-                            unit,//保持时间对应的单位
-                            workQueue,
-                            threadFactory,//线程工厂
-                            handler);//异常捕获器
-                }
-            }
+            mThreadPoolExecutor = new ThreadPoolExecutor(
+                    corePoolSize,//核心线程数
+                    maximumPoolSize,//最大线程数
+                    keepAliveTime,//保持时间
+                    unit,//保持时间对应的单位
+                    workQueue,
+                    threadFactory,//线程工厂
+                    handler);//异常捕获器
         }
         return mThreadPoolExecutor;
     }
@@ -73,7 +67,7 @@ public class ThreadPoolProxy {
     /**
      * 提交任务
      */
-    public Future<?> commitTask(Runnable r) {
+    public Future<? > commitTask(Runnable r) {
         initExecutor();
         return mThreadPoolExecutor.submit(r);
     }

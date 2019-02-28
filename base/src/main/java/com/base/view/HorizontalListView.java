@@ -24,11 +24,11 @@ import java.util.List;
  */
 public class HorizontalListView extends LinearLayout {
     private View view;
-    private btnListener listener;
-    private List<TextView> textViews = new ArrayList<TextView>();
+    private ViewOnClickListener listener;
+    private List<TextView> textViews = new ArrayList<>();
     private Context myContext;
     private LinearLayout layout;
-    private int textColor = BPConfig.APP_THEME_COLOR;
+    private int textColor = BPConfig.appThemeColor;
     private int selectIndex = 0;
     private float textsize = -1;
     private int screenWidth;
@@ -82,24 +82,18 @@ public class HorizontalListView extends LinearLayout {
         titleView.setLayoutParams(params);
 
         titleView.setPadding(0, tbInterval, 0, tbInterval);
-        titleView.setOnClickListener(new OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                setOnclick(position, true);
-            }
-
-        });
+        titleView.setOnClickListener(v -> setOnclick(position, true));
         return titleView;
     }
 
-    public void setDate(List<String> list, btnListener listener) {
+    public void setDate(List<String> list, ViewOnClickListener listener) {
         this.listener = listener;
         layout.removeAllViews();
         textViews.clear();
         for (int i = 0; i < list.size(); i++) {
-            TextView _tv = getTextView(list.get(i), i);
-            layout.addView(_tv);
-            textViews.add(_tv);
+            TextView tv = getTextView(list.get(i), i);
+            layout.addView(tv);
+            textViews.add(tv);
         }
     }
 
@@ -117,19 +111,19 @@ public class HorizontalListView extends LinearLayout {
             screenWidth = parentView.getMeasuredWidth();
         }
         if (isOnclick)
-            listener.btnOnclick(index);
+            listener.viewOnclick(index);
         selectIndex = index;
         layout.removeAllViews();
         for (int i = 0; i < textViews.size(); i++) {
-            TextView _view = textViews.get(i);
+            TextView textView = textViews.get(i);
             if (i == index) {
-                _view.setTextColor(textColor);
-                _view.setTextSize(16);
+                textView.setTextColor(textColor);
+                textView.setTextSize(16);
             } else {
-                _view.setTextColor(0xff333333);
-                _view.setTextSize(14);
+                textView.setTextColor(0xff333333);
+                textView.setTextSize(14);
             }
-            layout.addView(_view);
+            layout.addView(textView);
         }
     }
 
@@ -137,8 +131,12 @@ public class HorizontalListView extends LinearLayout {
         this.textColor = color;
     }
 
-    public interface btnListener {
-        void btnOnclick(int no);
+
+    /**
+     * @since 1.1.1
+     */
+    public interface ViewOnClickListener {
+        void viewOnclick(int position);
     }
 
     private int viewScroll(int mark) {

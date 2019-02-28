@@ -45,9 +45,6 @@ public class EclairGestureDetector extends CupcakeGestureDetector {
                 mActivePointerId = INVALID_POINTER_ID;
                 break;
             case MotionEvent.ACTION_POINTER_UP:
-                // Ignore deprecation, ACTION_POINTER_ID_MASK and
-                // ACTION_POINTER_ID_SHIFT has same value and are deprecated
-                // You can have either deprecation or lint target api warning
                 final int pointerIndex = Compat.getPointerIndex(ev.getAction());
                 final int pointerId = ev.getPointerId(pointerIndex);
                 if (pointerId == mActivePointerId) {
@@ -58,6 +55,8 @@ public class EclairGestureDetector extends CupcakeGestureDetector {
                     mLastTouchX = ev.getX(newPointerIndex);
                     mLastTouchY = ev.getY(newPointerIndex);
                 }
+                break;
+            default:
                 break;
         }
 
