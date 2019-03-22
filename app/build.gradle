@@ -26,6 +26,6 @@ dependencies {
     implementation fileTree(include: ['*.jar'], dir: 'libs')
     api 'com.jakewharton:butterknife:8.8.1'
     annotationProcessor 'com.jakewharton:butterknife-compiler:8.8.1'
-    //    implementation 'com.github.layren:Base:1.0.0'
+//        implementation 'com.github.layren:Base:1.1.2'
     implementation project(':base')
 }
