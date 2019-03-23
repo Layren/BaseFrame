@@ -1,4 +1,4 @@
-﻿package com.base.net;
+package com.base.net;
 
 import android.util.Log;
 
@@ -61,3 +61,4 @@ public class MCBaseAPI extends SNNetAPI {
     }
 
 }
+
