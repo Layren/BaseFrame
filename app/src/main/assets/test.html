@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+    <script src="http://code.jquery.com/jquery-2.1.1.min.js"></script>
+</head>
+<body>
+<div class="upload_field">
+    <label for="thumb"><i class="required"></i>标识缩略图</label>
+    <div class="upload_thumb">
+        <input type="file" id="thumb" title="" name="thumb" value="" accept="image/png"/>
+        <div class="upload_preview" title="">
+            <img src="原先素材缩略图地址">
+        </div>
+    </div>
+</div>
+<script>
+    $('[name=thumb]').change(function() {
+        preview(this);
+    });
+    function preview(input) {
+        if (input.files && input.files[0]) {
+        alert("11111111111111111111111111111111111");
+            var fileName = input.files[0].name.split('.').slice(-1).toString();
+            //限制文件格式
+            switch(fileName) {
+                case 'png':
+                    var reader = new FileReader();
+                    reader.onload = function (e) {
+                        var $img = $('<img/>');
+                        $img.attr('src', e.target.result);
+                        $('.upload_preview').html('');
+                        $('.upload_preview').append($img);
+                        $('.upload_preview').css({'background-color': '#fff', 'border': '1px solid #e0e0e0'});
+                    };
+                    reader.readAsDataURL(input.files[0]);
+                    //获取图片名字
+                    var packName = input.value.split('\\').slice(-1);
+                    $('[name=thumb]').attr('title', packName);
+                    break;
+                default:
+                    alert("请上传png格式图片");
+                    $('[name=thumb]').val('');
+                    return;
+            };
+        };
+    }
+
+</script>
+</body>
+</html>

@@ -2,6 +2,7 @@ package com.base.baseClass;
 
 import android.app.Dialog;
 import android.content.Intent;
+import android.graphics.Color;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.LayoutRes;
@@ -11,6 +12,9 @@ import android.support.annotation.StringRes;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
+import android.widget.RelativeLayout;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.base.config.BPConfig;
@@ -45,7 +49,14 @@ public abstract class BaseFragment extends ImmersionFragment
     protected int apiCurReturnCount;
 
     protected Dialog dialogVersion;
-    protected View fragmentView;
+    public View fragmentView;
+
+    protected TextView title;
+    protected RelativeLayout layout;
+    protected ImageView back;
+    protected TextView leftTv;
+    protected TextView rightTv;
+    protected TextView rightTv2;
 
     private Unbinder unbinder;
 
@@ -60,6 +71,27 @@ public abstract class BaseFragment extends ImmersionFragment
         screenHeight = BPConfig.screenHeight;
         if (immersionBarEnabled()) {
             initImmersionBar();
+        }
+    }
+
+    protected void setWhiteHeaderView() {
+        if (layout != null) {
+            layout.setBackgroundColor(Color.WHITE);
+        }
+        if (title != null) {
+            title.setTextColor(Color.BLACK);
+        }
+        if (back != null) {
+            back.setImageResource(R.drawable.back_black);
+        }
+        if (leftTv != null) {
+            leftTv.setTextColor(Color.BLACK);
+        }
+        if (rightTv != null) {
+            rightTv.setTextColor(Color.BLACK);
+        }
+        if (rightTv2 != null) {
+            rightTv2.setTextColor(Color.BLACK);
         }
     }
 
@@ -84,6 +116,16 @@ public abstract class BaseFragment extends ImmersionFragment
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         fragmentView = inflater.inflate(getLayoutId(), container, false);
         View v = bindView(fragmentView);
+        title = v.findViewById(R.id.tv_title_include_header_fragment);
+        layout = v.findViewById(R.id.layout_include_header_fragment);
+        if (layout != null)
+            layout.setBackgroundColor(BPConfig.appThemeColor);
+        back = v.findViewById(R.id.img_back_include_header_fragment);
+        if (back != null)
+            back.setVisibility(View.GONE);
+        leftTv = v.findViewById(R.id.tv_left_include_header_fragment);
+        rightTv = v.findViewById(R.id.tv_right_include_header_fragment);
+        rightTv2 = v.findViewById(R.id.tv_right2_include_header_fragment);
         initView();
         return v;
     }
@@ -237,15 +279,13 @@ public abstract class BaseFragment extends ImmersionFragment
     }
 
     protected void immersionInit() {
+        if(((BaseActivity)getActivity()).isFragment)
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-
-            ImmersionBar immersionBar = ImmersionBar.with(this);
             if (getStatusBarView() != 0)
-                immersionBar.titleBar(getStatusBarView());
+                mImmersionBar.titleBar(getStatusBarView());
             else
-                immersionBar.navigationBarColor(BPConfig.appThemeColorValue).fitsSystemWindows(true);
-
-            immersionBar.keyboardEnable(true)
+                mImmersionBar.navigationBarColor(BPConfig.appThemeColorValue).fitsSystemWindows(true);
+            mImmersionBar.keyboardEnable(true)
                     .init();
         }
     }

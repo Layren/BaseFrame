@@ -20,6 +20,7 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.base.R;
 import com.base.config.BPConfig;
 import com.base.interfaces.RefreshViewAdapterListener;
 import com.base.interfaces.RefreshViewMultiItemAdapterListener;
@@ -33,7 +34,6 @@ import com.base.util.DialogStringInfo;
 import com.base.util.ToastAlone;
 import com.base.view.RefreshRecyclerView;
 import com.chad.library.adapter.base.BaseViewHolder;
-import com.base.R;
 import com.gyf.barlibrary.ImmersionBar;
 
 import java.util.Map;
@@ -61,7 +61,7 @@ public abstract class BaseActivity extends AppCompatActivity implements SNReques
     protected TextView leftTv;
     protected TextView rightTv;
     protected TextView rightTv2;
-    private boolean isFragment = false;
+    protected boolean isFragment = false;
 
 
     @Override
@@ -79,8 +79,6 @@ public abstract class BaseActivity extends AppCompatActivity implements SNReques
         ActivityManager.getAppManager().addActivity(this);
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
         setContentView(getLayoutId());
-        if (BPConfig.isWhiteHeader)
-            setWhiteHeaderView();
         initView(savedInstanceState);
     }
 
@@ -109,7 +107,7 @@ public abstract class BaseActivity extends AppCompatActivity implements SNReques
         initView();
     }
 
-    private void setWhiteHeaderView() {
+    protected void setWhiteHeaderView() {
         if (layout != null) {
             layout.setBackgroundColor(Color.WHITE);
         }
@@ -186,8 +184,11 @@ public abstract class BaseActivity extends AppCompatActivity implements SNReques
 
     @Override
     public void setContentView(View view) {
+        if (isFragment) {
+            ImmersionBar.with(this).init();
+        }
+        getSupportActionBar().hide();
         super.setContentView(view);
-        ButterKnife.bind(this, view);
         if (!isFragment && Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             ImmersionBar immersionBar = ImmersionBar.with(this);
             if (getStatusBarView() != 0)
@@ -197,14 +198,19 @@ public abstract class BaseActivity extends AppCompatActivity implements SNReques
 
             immersionBar.keyboardEnable(true)
                     .init();
+        } else {
+            ImmersionBar.with(this).init();
         }
-        getSupportActionBar().hide();
+        ButterKnife.bind(this, view);
     }
 
     @Override
     public void setContentView(int layoutResID) {
+        if (isFragment) {
+            ImmersionBar.with(this).init();
+        }
+        getSupportActionBar().hide();
         super.setContentView(layoutResID);
-        ButterKnife.bind(this);
         if (!isFragment && Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             ImmersionBar immersionBar = ImmersionBar.with(this);
             if (getStatusBarView() != 0)
@@ -215,21 +221,21 @@ public abstract class BaseActivity extends AppCompatActivity implements SNReques
             immersionBar.keyboardEnable(true)
                     .init();
         }
-        getSupportActionBar().hide();
-        title = findViewById(R.id.tv_title_include_header);
-        layout = findViewById(R.id.layout_include_header);
+        ButterKnife.bind(this);
+        title = findViewById(R.id.tv_title_include_header_activity);
+        layout = findViewById(R.id.layout_include_header_activity);
         if (layout != null)
             layout.setBackgroundColor(BPConfig.appThemeColor);
-        back = findViewById(R.id.img_back_iclude_header);
+        back = findViewById(R.id.img_back_include_header_activity);
         if (back != null) {
             back.setOnClickListener(v -> finishAnim());
         }
-        leftTv = findViewById(R.id.tv_left_include_header);
+        leftTv = findViewById(R.id.tv_left_include_header_activity);
         if (leftTv != null) {
             leftTv.setOnClickListener(v -> finishAnim());
         }
-        rightTv = findViewById(R.id.tv_right_include_header);
-        rightTv2 = findViewById(R.id.tv_right2_include_header);
+        rightTv = findViewById(R.id.tv_right_include_header_activity);
+        rightTv2 = findViewById(R.id.tv_right2_include_header_activity);
     }
 
     @Override
@@ -307,7 +313,7 @@ public abstract class BaseActivity extends AppCompatActivity implements SNReques
     }
 
     protected void finishAnim() {
-        finish();
+        ActivityManager.getAppManager().finishActivity();
         overridePendingTransition(R.anim.push_right_in, R.anim.push_right_out);
     }
 

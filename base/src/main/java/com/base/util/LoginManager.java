@@ -9,7 +9,6 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
-import java.io.StreamCorruptedException;
 
 /**
  * Created by Administrator on 2017/11/3.
@@ -18,24 +17,28 @@ import java.io.StreamCorruptedException;
 public class LoginManager {
 
     private static final String KEY = "userInfo";
-    private static String fileName = "";
+    private static SharedPreferences preferences;
+    private static LoginManager manager;
 
     private LoginManager() {
     }
 
-    public static void setFileName(String fileName) {
-        LoginManager.fileName = fileName;
+    public static LoginManager getInstance() {
+        if (manager == null)
+            manager = new LoginManager();
+        return manager;
     }
 
-    public static void clear(Context context) {
-        SharedPreferences.Editor sharedata = context.getSharedPreferences(fileName, 0).edit();
-        sharedata.clear().apply();
+    public void setFileName(Context context, String fileName) {
+        preferences = context.getSharedPreferences(fileName, 0);
     }
 
-    public static void saveObject(Context context, Object obj) {
+    public void clear() {
+        preferences.edit().clear().apply();
+    }
+
+    public void saveUserInfo(Object obj) {
         try {
-            // 保存对象
-            SharedPreferences.Editor sharedata = context.getSharedPreferences(fileName, 0).edit();
             //先将序列化结果写到byte缓存中，其实就分配一个内存空间
             ByteArrayOutputStream bos = new ByteArrayOutputStream();
             ObjectOutputStream os = new ObjectOutputStream(bos);
@@ -44,11 +47,18 @@ public class LoginManager {
             //将序列化的数据转为16进制保存
             String bytesToHexString = bytesToHexString(bos.toByteArray());
             //保存该16进制数组
-            sharedata.putString(KEY, bytesToHexString);
-            sharedata.apply();
+            preferences.edit().putString(KEY, bytesToHexString).apply();
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+
+    public void saveCookies(String cookies) {
+        preferences.edit().putString("cookies", cookies).apply();
+    }
+
+    public String readCookies() {
+        return preferences.getString("cookies", "");
     }
 
     /**
@@ -78,14 +88,12 @@ public class LoginManager {
     /**
      * desc:获取保存的Object对象
      *
-     * @param context
      * @return modified:
      */
-    public static Object readObject(Context context) {
+    public Object readUserInfo() {
         try {
-            SharedPreferences sharedata = context.getSharedPreferences(fileName, 0);
-            if (sharedata.contains(KEY)) {
-                String string = sharedata.getString(KEY, "");
+            if (preferences.contains(KEY)) {
+                String string = preferences.getString(KEY, "");
                 if (TextUtils.isEmpty(string)) {
                     return null;
                 } else {

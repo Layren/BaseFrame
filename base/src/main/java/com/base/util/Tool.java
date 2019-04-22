@@ -11,7 +11,6 @@ import android.graphics.Matrix;
 import android.graphics.PixelFormat;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
-import android.os.Environment;
 import android.support.annotation.NonNull;
 import android.text.Editable;
 import android.text.TextWatcher;
@@ -32,7 +31,6 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
 import java.security.MessageDigest;
@@ -129,7 +127,7 @@ public class Tool {
     public static void saveCahceBitmapToDCIM(Bitmap bitmap, String fileName) {
         BufferedOutputStream os = null;
         try {
-            File filePath = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DCIM).getAbsolutePath() + "/Camera");
+            File filePath = new File(BPConfig.cameraImgPath);
 
             if (!filePath.exists()) {
                 filePath.mkdir();
@@ -159,10 +157,10 @@ public class Tool {
      * @param map map
      * @return key集合
      */
-    public static List<String> getIdFromMap(Map<String, String> map) {
+    public static List<String> getIdFromMap(Map map) {
         List<String> keys = new ArrayList<>();
-        for (Map.Entry<String, String> entry : map.entrySet()) {
-            keys.add(entry.getKey());
+        for (Object key : map.keySet()) {
+            keys.add(key.toString());
         }
         return keys;
     }
@@ -402,29 +400,6 @@ public class Tool {
 
 
     /**
-     * 获取文件路径
-     *
-     * @return
-     */
-    public static String getFilePath(String fileName) {
-        String dirPath = BPConfig.CACHE_FILE_PATH;
-        File folder = new File(dirPath);
-        if (!folder.exists()) {
-            folder.mkdirs();
-        }
-        File file = new File(dirPath + "/" + fileName);
-        if (!file.exists()) {
-            try {
-                file.createNewFile();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
-        return file.getAbsolutePath();
-
-    }
-
-    /**
      * 返回String像素长度
      *
      * @param view
@@ -443,11 +418,13 @@ public class Tool {
     public static String getPath(String path) {
         String imgPath = "";
         String fileName = "";
+        if (path.contains("/"))
+            path = path.substring(path.lastIndexOf('/') + 1);
         if (path.contains(".") && path.lastIndexOf('.') > 0
-                && path.lastIndexOf('.') + 1 < path.lastIndexOf('.'))
-            fileName = path.substring(path.lastIndexOf('/') + 1, path.lastIndexOf('.')) + "temp";
+                && path.lastIndexOf('.') + 1 < path.length())
+            fileName = path.substring(0, path.lastIndexOf('.')) + ".temp";
         else
-            fileName = path.substring(path.lastIndexOf('.') + 1) + "temp";
+            fileName = path + ".temp";
         imgPath = BPConfig.CACHE_IMG_PATH + File.separator + fileName;
         File file = new File(imgPath);
         if (file.exists())
@@ -487,7 +464,7 @@ public class Tool {
      * @param path ：源图片路径
      * @return
      */
-    private static Bitmap zoomImage(String path) {
+    public static Bitmap zoomImage(String path) {
         try {
             return zoomImage(BitmapFactory.decodeFile(path));
         } catch (Exception e) {
@@ -809,10 +786,8 @@ public class Tool {
                 if (MotionEvent.ACTION_DOWN == motionEvent.getAction()) {
                     mEditText[finalI].setCursorVisible(true);// 再次点击显示光标
                 }
-
                 return false;
             });
         }
-
     }
 }

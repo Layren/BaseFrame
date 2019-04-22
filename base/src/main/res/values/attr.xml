@@ -9,4 +9,13 @@
         <attr name="gif" format="reference" />
         <attr name="paused" format="boolean" />
     </declare-styleable>
+    <declare-styleable name="BannerView">
+        <attr name="proportion" format="float" />
+    </declare-styleable>
+    <!--//圆形图片-->
+    <declare-styleable name="RoundedImageView">
+        <attr name="border_thickness" format="dimension" />
+        <attr name="border_inside_color" format="color" />
+        <attr name="border_outside_color" format="color"/>
+    </declare-styleable>
 </resources>

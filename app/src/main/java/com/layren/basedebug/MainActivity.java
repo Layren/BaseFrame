@@ -3,24 +3,26 @@ package com.layren.basedebug;
 
 import android.content.Intent;
 import android.graphics.Color;
-import android.media.AudioManager;
 import android.media.SoundPool;
-import android.os.Build;
-import android.support.v7.widget.GridLayoutManager;
-import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.RecyclerView;
-import android.view.View;
+import android.net.Uri;
+import android.util.Log;
+import android.webkit.JsResult;
+import android.webkit.ValueCallback;
+import android.webkit.WebChromeClient;
+import android.webkit.WebView;
 
 import com.base.adapter.RefreshViewAdapter;
 import com.base.baseClass.BaseActivity;
 import com.base.interfaces.RefreshViewAdapterListener;
 import com.base.model.MultiModel;
-import com.base.pickphoto.AddPhotoActivity;
+import com.base.pickphoto.PickPhoto;
 import com.base.util.PermissionManager;
 import com.base.view.ItemDecoration;
 import com.base.view.NestedRecyclerView;
 import com.base.view.RefreshRecyclerView;
-import com.chad.library.adapter.base.BaseQuickAdapter;
+import com.base.web.ProgressWebView;
+import com.base.web.WebClient;
+import com.base.web.WebLoadListener;
 import com.chad.library.adapter.base.BaseViewHolder;
 
 import java.util.ArrayList;
@@ -40,20 +42,28 @@ public class MainActivity extends BaseActivity {
     NestedRecyclerView recyclerViews;
     private SoundPool soundPool;
     private int soundId;
+    @BindView(R.id.p_web_view)
+    ProgressWebView webView;
+
+    private PickPhoto pickPhoto;
 
     @Override
     protected int getLayoutId() {
+
         return R.layout.activity_main;
     }
 
 
     @Override
     protected void initView() {
+        Log.e("111111111", "1" + MainActivity.class);
+        Log.e("111111111", "2" + getClass());
         boolean isStorage = PermissionManager.query(this, PermissionManager.STORAGE);
         if (!isStorage) {
             PermissionManager.granted(this, PermissionManager.STORAGE, 1);
         }
-        findViewById(R.id.text_v).setOnClickListener(v -> goActivity(AddPhotoActivity.class));
+        findViewById(R.id.text_v).setOnClickListener(v -> {
+        });
         recyclerView.setMultiAdapter(((holder, item, itemType) -> {
             MultiItemMudle mudle = (MultiItemMudle) item;
             switch (itemType) {
@@ -98,12 +108,54 @@ public class MainActivity extends BaseActivity {
         recyclerViews.setAdapter(adapter);
         recyclerViews.addItemDecoration(new ItemDecoration(1, Color.RED));
         adapter.setNewData(list);
+        extend = new WebViewExtend(this);
+        pickPhoto = new PickPhoto(MainActivity.this);
+
+
+        extend.setLoadListener(new WebLoadListener() {
+            @Override
+            public void onLoadUrlStart() {
+
+            }
+
+            @Override
+            public void onLoadUrlFinish() {
+
+            }
+
+            @Override
+            public void setProgressChanged(int progress) {
+
+            }
+        });
+        extend.setClient(new WebClient() {
+            @Override
+            public boolean onShowFileChooser(WebView webView, ValueCallback<Uri[]> filePathCallback, WebChromeClient.FileChooserParams fileChooserParams) {
+                MainActivity.this.filePathCallback = filePathCallback;
+                pickPhoto.albumSelect(psr -> extend.upLoadFiles(filePathCallback, psr.getUrls()));
+
+                return true;
+            }
+
+            @Override
+            public boolean onJsAlert(WebView view, String url, String message, JsResult result) {
+                Log.e("alert", url + "\n" + message);
+                return super.onJsAlert(view, url, message, result);
+            }
+        });
+        extend.deployWebView(webView.getWebView());
+        webView.loadUrl("file:///android_asset/test.html");
 
     }
+
+    private ValueCallback<Uri[]> filePathCallback;
+    private List<String> results = new ArrayList<>();
+    WebViewExtend extend;
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
+        pickPhoto.setResult(requestCode, resultCode, data);
     }
 
     @Override

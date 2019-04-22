@@ -17,7 +17,7 @@ import java.util.List;
 
 /**
  * Created by GaoTing on 2018/11/1.
- *
+ * <p>
  * Explain :嵌套 RecyclerView
  */
 public class NestedRecyclerView extends RecyclerView {
@@ -48,7 +48,17 @@ public class NestedRecyclerView extends RecyclerView {
         setNestedScrollingEnabled(false);
     }
 
-        public void setAdapter(int layoutId, RefreshViewAdapterListener listener) {
+    public void setAdapter(RefreshViewAdapter adapter) {
+        this.adapter = adapter;
+        super.setAdapter(adapter);
+    }
+
+    @Override
+    public RefreshViewAdapter getAdapter() {
+        return adapter;
+    }
+
+    public void setAdapter(int layoutId, RefreshViewAdapterListener listener) {
         adapter = new RefreshViewAdapter(layoutId, listener);
         setAdapter(adapter);
     }
@@ -102,7 +112,7 @@ public class NestedRecyclerView extends RecyclerView {
         }
     }
 
-        public void setOnItemClickListener(BaseQuickAdapter.OnItemClickListener itemClickListener) {
+    public void setOnItemClickListener(BaseQuickAdapter.OnItemClickListener itemClickListener) {
         if (adapter != null)
             adapter.setOnItemClickListener(itemClickListener);
     }

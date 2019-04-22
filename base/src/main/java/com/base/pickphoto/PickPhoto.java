@@ -12,8 +12,10 @@ import android.view.View;
 
 import com.base.R;
 import com.base.config.BPConfig;
+import com.base.config.RequestCode;
 import com.base.model.PhotoItem;
 import com.base.model.PhotoSelectRecord;
+import com.base.util.ClipViewConfig;
 import com.base.util.Tool;
 import com.base.view.PopWindows;
 
@@ -34,6 +36,8 @@ public class PickPhoto implements PopWindows.PopWindowsViewOnCallk, View.OnClick
     private LinkedHashSet<String> urls = new LinkedHashSet<>();
     private PickPhotoCall call;
     private boolean isSign;
+    private boolean isTailor;
+    private ClipViewConfig config;
     private int maxPage = 9;
 
     public PickPhoto(Activity activity) {
@@ -83,17 +87,26 @@ public class PickPhoto implements PopWindows.PopWindowsViewOnCallk, View.OnClick
         }
 
         intent.putExtra(MediaStore.Images.Media.ORIENTATION, 0);
-        activity.startActivityForResult(intent, BPConfig.PHONTO_GRAPH);
+        activity.startActivityForResult(intent, BPConfig.PHOTO_GRAPH);
 
+    }
+
+    /**
+     * 设置是否单选
+     */
+    public PickPhoto setSign(boolean isSign) {
+        this.isSign = isSign;
+        return this;
     }
 
     /**
      * 相册选择
      */
-    private void albumSelect() {
+    public void albumSelect(PickPhotoCall call) {
         Intent intent = new Intent(activity, PhotoWallActivity.class);
         intent.putExtra("sign", isSign);
         activity.startActivityForResult(intent, BPConfig.PIC_SELECT);
+        this.call = call;
     }
 
 
@@ -108,15 +121,27 @@ public class PickPhoto implements PopWindows.PopWindowsViewOnCallk, View.OnClick
     }
 
     /**
-     * 显示菜单
+     * 显示菜单(单选)
      *
-     * @param isSign 是否单选
-     * @param call   选择图片回调
+     * @param call 选择图片回调
      */
-    public void showMenu(boolean isSign, PickPhotoCall call) {
+    public void showMenuSign(PickPhotoCall call) {
         popSetAvatar.show(Gravity.BOTTOM);
         this.call = call;
-        this.isSign = isSign;
+        this.isSign = true;
+    }
+
+    /**
+     * 显示菜单(裁剪)
+     *
+     * @param call 选择图片回调
+     */
+    public void showMenuTailor(PickPhotoCall call, ClipViewConfig config) {
+        popSetAvatar.show(Gravity.BOTTOM);
+        this.call = call;
+        this.isSign = true;
+        this.isTailor = true;
+        this.config = config;
     }
 
     public void setResult(int requestCode, int resultCode, Intent data) {
@@ -139,14 +164,24 @@ public class PickPhoto implements PopWindows.PopWindowsViewOnCallk, View.OnClick
                     }
                 }
                 break;
-            case BPConfig.PHONTO_GRAPH:
+            case BPConfig.PHOTO_GRAPH:
                 if (resultCode == Activity.RESULT_OK)
                     addImage(Tool.getPath(BPConfig.cameraImgPath + photoName));
+                break;
+            case RequestCode.CROP_PHOTO:
+                if (resultCode == RequestCode.CROP_PHOTO_RESULT) {
+                    addImage(data.getStringExtra("path"));
+                }
                 break;
             default:
                 break;
         }
-
+        if (isTailor && resultCode != RequestCode.CROP_PHOTO_RESULT) {
+            Intent intent = new Intent(activity, ClipImageActivity.class);
+            intent.putExtra("config", config);
+            activity.startActivityForResult(intent, RequestCode.CROP_PHOTO);
+            return;
+        }
         PhotoSelectRecord psr = new PhotoSelectRecord();
         psr.setItemList(list);
         psr.setUrls(urls);
@@ -172,7 +207,7 @@ public class PickPhoto implements PopWindows.PopWindowsViewOnCallk, View.OnClick
             photoGraph(photoName);
             popSetAvatar.close();
         } else if (i == R.id.tv_album_select_pop_window_photo_menu) {
-            albumSelect();
+            albumSelect(call);
             popSetAvatar.close();
         } else if (i == R.id.tv_cancel_pop_window_photo_menu) {
             popSetAvatar.close();

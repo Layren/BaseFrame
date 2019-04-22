@@ -10,13 +10,13 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.LinearLayout;
 
+import com.base.R;
 import com.base.adapter.RefreshViewAdapter;
 import com.base.adapter.RefreshViewMultiItemAdapter;
 import com.base.interfaces.RefreshViewAdapterListener;
 import com.base.interfaces.RefreshViewMultiItemAdapterListener;
 import com.base.model.MultiModel;
 import com.chad.library.adapter.base.BaseQuickAdapter;
-import com.base.R;
 import com.chad.library.adapter.base.entity.MultiItemEntity;
 import com.chad.library.adapter.base.loadmore.LoadMoreView;
 
@@ -91,7 +91,7 @@ public class RefreshRecyclerView extends LinearLayout {
         setAdapter(adapter);
         adapter.setEnableLoadMore(true);
         adapter.setOnLoadMoreListener(() -> {
-            if (RefreshRecyclerView.this.listener != null)
+            if (RefreshRecyclerView.this.listener != null && adapter.isLoadMoreEnable())
                 RefreshRecyclerView.this.listener.onLoadMore();
         }, reView);
     }
@@ -249,6 +249,10 @@ public class RefreshRecyclerView extends LinearLayout {
     }
 
     public void hideRefreshView() {
-        reLayout.setEnabled(false);
+        hideRefreshView(true);
+    }
+
+    public void hideRefreshView(boolean hide) {
+        reLayout.setEnabled(!hide);
     }
 }

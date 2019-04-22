@@ -64,7 +64,7 @@ class HttpManager {
         if (params.isNullFile() || !params.getFileKeys().isEmpty()) {
             body = addFile(params);
         } else {
-            for (String key : params.getmKeys()) {
+            for (String key : params.getKeys()) {
                 formBuilder.add(key, params.getValue(key));
             }
             body = formBuilder.build();
@@ -93,7 +93,7 @@ class HttpManager {
         MultipartBody.Builder mulitBuilder = new MultipartBody.Builder().setType(MultipartBody.FORM);
         RequestBody fileBody = null;
         boolean isJson = false;
-        for (String key : params.getmKeys()) {
+        for (String key : params.getKeys()) {
             mulitBuilder.addFormDataPart(key, params.getValue(key));
         }
         for (String key : params.getFileKeys()) {
@@ -174,10 +174,10 @@ class HttpManager {
         StringBuilder buffer = new StringBuilder();
         buffer.append(url);
         buffer.append(params.getUrl());
-        if (!params.getmKeys().isEmpty()) {
+        if (!params.getKeys().isEmpty()) {
             if (!buffer.toString().contains("?"))
                 buffer.append("?");
-            for (String str : params.getmKeys()) {
+            for (String str : params.getKeys()) {
                 buffer.append(str);
                 buffer.append("=");
                 buffer.append(params.getValue(str));

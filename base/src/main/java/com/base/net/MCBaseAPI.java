@@ -1,10 +1,9 @@
 package com.base.net;
 
-import android.util.Log;
-
 import com.base.BPApplication;
 import com.base.interfaces.SNRequestDataListener;
 import com.base.model.Base;
+import com.base.util.LogUtil;
 import com.google.gson.Gson;
 
 import org.json.JSONObject;
@@ -51,13 +50,10 @@ public class MCBaseAPI extends SNNetAPI {
             this.base = gson.fromJson(response, type);
             this.base.setDatas(responseObj);
         } catch (Exception e) {
-            Log.e("JsonError：", "API:" + whichAPI
-                    + "\n Response:" + response);
-            e.printStackTrace();
             this.base = new Base();
         }
-
         this.base.setResultMsg(response);
+        LogUtil.printJson("API result", response, "whichAPI:" + whichAPI);
     }
 
 }

@@ -28,4 +28,9 @@ public class RequestCode {
      */
     public static final int ADD_VIDEO = API + 1004;
     public static final int ADD_VIDEO_RESULT = API_R + 1004;
+    /**
+     * 图片裁剪
+     */
+    public static final int CROP_PHOTO = API + 1005;
+    public static final int CROP_PHOTO_RESULT = API_R + 1005;
 }

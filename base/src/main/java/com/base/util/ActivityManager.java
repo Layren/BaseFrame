@@ -3,10 +3,7 @@ package com.base.util;
 import android.app.Activity;
 
 import java.util.ArrayDeque;
-import java.util.ArrayList;
 import java.util.Deque;
-import java.util.List;
-import java.util.Stack;
 
 /**
  * Created by GaoTing on 2018/6/20.
@@ -78,17 +75,20 @@ public class ActivityManager {
      * 结束指定类名的Activity
      */
     public void finishActivity(Class<?> cls) {
-        List<Activity> activities = new ArrayList<>();
         for (Activity activity : activityStack) {
             if (activity.getClass().equals(cls)) {
-                activities.add(activity);
+                finishActivity(activity);
             }
         }
-        // 结束所有类名相同activity
-        activityStack.removeAll(activities);
-        for (Activity activity : activities) {
-            finishActivity(activity);
+    }
+
+    public boolean isExist(Class<?> cls) {
+        for (Activity activity : activityStack) {
+            if (activity.getClass().equals(cls)) {
+                return true;
+            }
         }
+        return false;
     }
 
     /**

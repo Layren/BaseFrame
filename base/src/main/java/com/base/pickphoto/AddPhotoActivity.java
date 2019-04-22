@@ -115,9 +115,7 @@ public class AddPhotoActivity extends BaseActivity implements OnClickListener {
     @Override
     public void onClick(View v) {
         int i = v.getId();
-        if (i == R.id.img_back_iclude_header) {
-            finishAnim();
-        } else if (i == R.id.tv_right_include_header) {
+        if (i == R.id.tv_right_include_header_activity) {
             save();
         }
     }

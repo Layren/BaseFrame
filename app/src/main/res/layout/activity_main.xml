@@ -6,12 +6,6 @@
     android:background="#62fa96"
     android:orientation="vertical">
 
-    <fragment
-        android:id="@+id/fragment_main"
-        android:name="com.layren.basedebug.MainFragment"
-        android:layout_width="match_parent"
-        android:layout_height="216dp" />
-
     <TextView
         android:id="@+id/text_v"
         android:layout_width="wrap_content"
@@ -19,10 +13,16 @@
         android:background="@color/red"
         android:text="红红火火恍恍惚惚" />
 
+    <com.base.web.ProgressWebView
+        android:id="@+id/p_web_view"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
+
     <com.base.view.RefreshRecyclerView
         android:id="@+id/recycler"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:visibility="gone"
         app:counts="3" />
 
     <android.support.v4.widget.NestedScrollView

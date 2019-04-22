@@ -1,16 +1,12 @@
 package com.base.qrcode;
 
 import android.app.Activity;
-import android.app.AlertDialog;
 import android.app.ProgressDialog;
-import android.content.Intent;
-import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.drawable.BitmapDrawable;
 import android.os.Handler;
 import android.os.Message;
-import android.provider.MediaStore;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.SurfaceHolder;
@@ -19,16 +15,17 @@ import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
 
+import com.base.R;
 import com.base.baseClass.BaseActivity;
 import com.base.interfaces.OnQRCodeBackCall;
-import com.base.R;
+import com.base.pickphoto.PickPhoto;
+import com.base.util.DialogStringInfo;
 import com.google.zxing.BarcodeFormat;
 import com.google.zxing.DecodeHintType;
 import com.google.zxing.Result;
 import com.google.zxing.client.result.ResultParser;
 import com.scanner.AmbientLightManager;
 import com.scanner.BeepManager;
-import com.scanner.FinishListener;
 import com.scanner.InactivityTimer;
 import com.scanner.ParamsManager;
 import com.scanner.camera.CameraManager;
@@ -57,7 +54,6 @@ import java.util.Map;
 public final class CaptureActivity extends BaseActivity implements
         SurfaceHolder.Callback, View.OnClickListener, ParamsManager {
     private static final String TAG = CaptureActivity.class.getSimpleName();
-    private static final int REQUEST_CODE = 100;
 
     /**
      * 是否有预览
@@ -150,14 +146,6 @@ public final class CaptureActivity extends BaseActivity implements
     @Override
     protected void onResume() {
         super.onResume();
-
-        // CameraManager must be initialized here, not in onCreate(). This is
-        // necessary because we don't
-        // want to open the camera driver and measure the screen size if we're
-        // going to show the help on
-        // first launch. That led to bugs where the scanning rectangle was the
-        // wrong size and partially
-        // off screen.
 
         // 相机初始化的动作需要开启相机并测量屏幕大小，这些操作
         // 不建议放到onCreate中，因为如果在onCreate中加上首次启动展示帮助信息的代码的 话，
@@ -260,37 +248,6 @@ public final class CaptureActivity extends BaseActivity implements
         return super.onKeyDown(keyCode, event);
     }
 
-    @Override
-    public void onActivityResult(int requestCode, int resultCode, Intent intent) {
-
-        if (resultCode == RESULT_OK) {
-            final ProgressDialog progressDialog;
-            if (requestCode == REQUEST_CODE) {// 获取选中图片的路径
-                Cursor cursor = getContentResolver().query(
-                        intent.getData(), new String[]{MediaStore.Images.ImageColumns.DATA}, null, null, null);
-                if (cursor.moveToFirst()) {
-                    photoPath = cursor.getString(cursor
-                            .getColumnIndex(MediaStore.Images.ImageColumns.DATA));
-                }
-                cursor.close();
-                progressDialog = new ProgressDialog(this);
-                progressDialog.setMessage("正在扫描...");
-                progressDialog.setCancelable(false);
-                progressDialog.show();
-                new Thread(() -> {
-                    Bitmap img = BitmapUtils.getCompressedBitmap(photoPath);
-                    BitmapDecoder decoder = new BitmapDecoder();
-                    Result result = decoder.getRawResult(img);
-                    if (result != null) {
-                        call.success(ResultParser.parseResult(result).toString());
-                    } else {
-                        call.success("解析错误！");
-                    }
-                    progressDialog.dismiss();
-                }).start();
-            }
-        }
-    }
 
     @Override
     public void surfaceCreated(SurfaceHolder holder) {
@@ -420,23 +377,51 @@ public final class CaptureActivity extends BaseActivity implements
     }
 
     private void displayFrameworkBugMessageAndExit() {
-        AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setTitle(getString(R.string.app_name));
-        builder.setMessage("相机错误");
-        builder.setPositiveButton("确定", new FinishListener(this));
-        builder.setOnCancelListener(new FinishListener(this));
-        builder.show();
+        initReturnBack("Error", "相机错误!", new DialogStringInfo() {
+            @Override
+            public void leftBtnClick(View v) {
+                dialogVersion.dismiss();
+            }
+
+            @Override
+            public void rightBtnClick(View v, String string) {
+                dialogVersion.dismiss();
+                finishAnim();
+            }
+        });
+
     }
 
     @Override
     public void onClick(View v) {
         int i = v.getId();
         if (i == R.id.capture_scan_photo) {// 打开手机中的相册
-            Intent innerIntent = new Intent(Intent.ACTION_GET_CONTENT); // "android.intent.action.GET_CONTENT"
-            innerIntent.setType("image/*");
-            Intent wrapperIntent = Intent.createChooser(innerIntent,
-                    "选择二维码图片");
-            this.startActivityForResult(wrapperIntent, REQUEST_CODE);
+//            Intent innerIntent = new Intent(Intent.ACTION_GET_CONTENT); // "android.intent.action.GET_CONTENT"
+//            innerIntent.setType("image/*");
+//            Intent wrapperIntent = Intent.createChooser(innerIntent,
+//                    "选择二维码图片");
+//            this.startActivityForResult(wrapperIntent, REQUEST_CODE);
+
+            new PickPhoto(this).setSign(true).albumSelect(psr -> {
+
+                final ProgressDialog progressDialog;
+                photoPath = psr.getUrls().get(0);
+                progressDialog = new ProgressDialog(this);
+                progressDialog.setMessage("正在扫描...");
+                progressDialog.setCancelable(false);
+                progressDialog.show();
+                new Thread(() -> {
+                    Bitmap img = BitmapUtils.getCompressedBitmap(photoPath);
+                    BitmapDecoder decoder = new BitmapDecoder();
+                    Result result = decoder.getRawResult(img);
+                    if (result != null) {
+                        call.success(ResultParser.parseResult(result).toString());
+                    } else {
+                        call.success("解析错误！");
+                    }
+                    progressDialog.dismiss();
+                }).start();
+            });
 
         } else if (i == R.id.capture_flashlight) {
             if (isFlashlightOpen) {

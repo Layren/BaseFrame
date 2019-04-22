@@ -1,6 +1,5 @@
 <resources>
 
-    <string name="app_name">JanlentBP</string>
     <string name="dialogloading">数据加载中</string>
 
     <!-- 相册多选 -->

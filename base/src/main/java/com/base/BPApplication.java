@@ -3,6 +3,7 @@ package com.base;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.Application;
+import android.content.pm.ApplicationInfo;
 import android.content.res.Resources;
 import android.os.Bundle;
 import android.os.Environment;
@@ -12,9 +13,9 @@ import android.text.TextUtils;
 
 import com.base.config.BPConfig;
 import com.base.db.BaseDBManager;
-import com.base.util.LoginManager;
 import com.base.util.ActivityManager;
 import com.base.util.CrashHandler;
+import com.base.util.LoginManager;
 import com.squareup.picasso.OkHttp3Downloader;
 import com.squareup.picasso.Picasso;
 
@@ -39,6 +40,8 @@ public class BPApplication extends Application {
     private Timer timer;
     private int time;
     private static String packgeName = "";
+    public static boolean isDebug = false;
+
 
     @Override
     public void onCreate() {
@@ -103,8 +106,9 @@ public class BPApplication extends Application {
         initPicasso();
         initCrash();
         initDb();
-        LoginManager.setFileName(packgeName);
+        LoginManager.getInstance().setFileName(getApplicationContext(), packgeName);
         BPConfig.appplcaitonId = packgeName;
+        isApkDebug();
     }
 
     protected void initPath(String... paths) {
@@ -220,7 +224,9 @@ public class BPApplication extends Application {
      */
     private void initPicasso() {
         try {
-            Picasso picasso = new Picasso.Builder(this).downloader(new OkHttp3Downloader(new File(BPConfig.CACHE_IMG_PATH), 1024 * 1024 * 100)).build();
+            Picasso picasso = new Picasso.Builder(this)
+                    .downloader(new OkHttp3Downloader(new File(BPConfig.CACHE_IMG_PATH), 1024 * 1024 * 100))
+                    .build();
             Picasso.setSingletonInstance(picasso);
         } catch (Exception e) {
             e.printStackTrace();
@@ -253,5 +259,11 @@ public class BPApplication extends Application {
             resources.updateConfiguration(configuration, resources.getDisplayMetrics());
         }
         return resources;
+    }
+
+    /*判断是否为Debug模式*/
+    private void isApkDebug() {
+        ApplicationInfo info = getApplicationInfo();
+        isDebug = (info.flags & ApplicationInfo.FLAG_DEBUGGABLE) != 0;
     }
 }
