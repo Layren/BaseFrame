@@ -187,7 +187,8 @@ public abstract class BaseActivity extends AppCompatActivity implements SNReques
         if (isFragment) {
             ImmersionBar.with(this).init();
         }
-        getSupportActionBar().hide();
+        if (getSupportActionBar() != null)
+            getSupportActionBar().hide();
         super.setContentView(view);
         if (!isFragment && Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             ImmersionBar immersionBar = ImmersionBar.with(this);
@@ -209,7 +210,8 @@ public abstract class BaseActivity extends AppCompatActivity implements SNReques
         if (isFragment) {
             ImmersionBar.with(this).init();
         }
-        getSupportActionBar().hide();
+        if (getSupportActionBar() != null)
+            getSupportActionBar().hide();
         super.setContentView(layoutResID);
         if (!isFragment && Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             ImmersionBar immersionBar = ImmersionBar.with(this);
