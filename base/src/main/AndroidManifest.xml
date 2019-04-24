@@ -35,6 +35,7 @@
         <activity android:name=".pickphoto.PhotoAlbumActivity" />
         <activity android:name=".pickphoto.PhotoWallActivity" />
         <activity android:name=".qrcode.CaptureActivity" />
+        <activity android:name=".pickphoto.ClipImageActivity" />
 
         <receiver android:name=".baseClass.BPBroadcastReceiver" />
         <provider
