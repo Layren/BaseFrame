@@ -35,6 +35,7 @@ public class ClipImageActivity extends BaseActivity implements View.OnClickListe
             setWhiteHeaderView();
         }
         title.setText("移动和缩放");
+        layout.setBackgroundColor(BPConfig.appThemeColor);
         path = getIntent().getStringExtra("path");
         config = (ClipViewConfig) getIntent().getSerializableExtra("config");
         clipViewLayout = findViewById(R.id.clipViewLayout);
@@ -73,7 +74,7 @@ public class ClipImageActivity extends BaseActivity implements View.OnClickListe
         if (oldPath.contains("."))
             oldPath = oldPath.substring(0, oldPath.lastIndexOf("."));
         String filePath = BPConfig.CACHE_IMG_PATH + "/" + oldPath + ".crop";
-        Tool.saveCahceBitmapToFile(zoomedCropBitmap, oldPath + ".crop");
+        Tool.saveCacheBitmapToFile(zoomedCropBitmap, oldPath + ".crop");
         Intent intent = new Intent();
         intent.putExtra("path", filePath);
         setResult(RequestCode.CROP_PHOTO_RESULT, intent);

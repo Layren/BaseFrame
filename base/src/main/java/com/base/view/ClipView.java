@@ -81,11 +81,11 @@ public class ClipView extends View {
                     this.getWidth() - mHorizontalPadding, this.getHeight() / 2 + clipWidth / 2 / ratio, borderPaint);
         } else if (clipType == ClipType.RECTANGLE) { //绘制矩形裁剪框
             //绘制中间的矩形
-            canvas.drawRect(mHorizontalPadding, (float) (this.getHeight() / 2 - clipWidth / 2 / ratio * 0.7),
-                    this.getWidth() - mHorizontalPadding, (float) (this.getHeight() / 2 + clipWidth / 2 / ratio *ratio), paint);
+            canvas.drawRect(mHorizontalPadding, (float) (this.getHeight() / 2 - clipWidth / 2 * ratio),
+                    this.getWidth() - mHorizontalPadding, (float) (this.getHeight() / 2 + clipWidth / 2  *ratio), paint);
             //绘制白色的矩形边框
-            canvas.drawRect(mHorizontalPadding, (float) (this.getHeight() / 2 - clipWidth / 2 / ratio * 0.7),
-                    this.getWidth() - mHorizontalPadding, (float) (this.getHeight() / 2 + clipWidth / 2 / ratio * ratio), borderPaint);
+            canvas.drawRect(mHorizontalPadding, (float) (this.getHeight() / 2 - clipWidth / 2 *ratio),
+                    this.getWidth() - mHorizontalPadding, (float) (this.getHeight() / 2 + clipWidth / 2  * ratio), borderPaint);
         }
         //出栈，恢复到之前的图层，意味着新建的图层会被删除，新建图层上的内容会被绘制到canvas (or the previous layer)
         canvas.restore();

@@ -93,7 +93,7 @@ public class Tool {
     /**
      * 保存图片到sd卡
      */
-    public static void saveCahceBitmapToFile(Bitmap bitmap, String fileName) {
+    public static void saveCacheBitmapToFile(Bitmap bitmap, String fileName) {
         BufferedOutputStream os = null;
         try {
             File filePath = new File(BPConfig.CACHE_IMG_PATH);
@@ -108,7 +108,7 @@ public class Tool {
                 bitmap.compress(Bitmap.CompressFormat.JPEG, 50, os);
             }
         } catch (IOException e) {
-            Log.e("Tools", "saveCahceBitmapToFile_Error:");
+            Log.e("Tools", "saveCacheBitmapToFile_Error:");
             e.printStackTrace();
         } finally {
             if (os != null) {
@@ -124,7 +124,7 @@ public class Tool {
     /**
      * 保存图片到相机相册
      */
-    public static void saveCahceBitmapToDCIM(Bitmap bitmap, String fileName) {
+    public static void saveCacheBitmapToDCIM(Bitmap bitmap, String fileName) {
         BufferedOutputStream os = null;
         try {
             File filePath = new File(BPConfig.cameraImgPath);
@@ -138,7 +138,7 @@ public class Tool {
             os = new BufferedOutputStream(new FileOutputStream(file));
             bitmap.compress(Bitmap.CompressFormat.JPEG, 50, os);
         } catch (Exception e) {
-            Log.e("Tools", "saveCahceBitmapToDCIM_Error:");
+            Log.e("Tools", "saveCacheBitmapToDCIM_Error:");
             e.printStackTrace();
         } finally {
             if (os != null) {
@@ -418,18 +418,19 @@ public class Tool {
     public static String getPath(String path) {
         String imgPath = "";
         String fileName = "";
+        String oldPath="";
         if (path.contains("/"))
-            path = path.substring(path.lastIndexOf('/') + 1);
-        if (path.contains(".") && path.lastIndexOf('.') > 0
-                && path.lastIndexOf('.') + 1 < path.length())
-            fileName = path.substring(0, path.lastIndexOf('.')) + ".temp";
+            oldPath = path.substring(path.lastIndexOf('/') + 1);
+        if (oldPath.contains(".") && oldPath.lastIndexOf('.') > 0
+                && oldPath.lastIndexOf('.') + 1 < oldPath.length())
+            fileName = oldPath.substring(0, oldPath.lastIndexOf('.')) + ".temp";
         else
-            fileName = path + ".temp";
+            fileName = oldPath + ".temp";
         imgPath = BPConfig.CACHE_IMG_PATH + File.separator + fileName;
         File file = new File(imgPath);
         if (file.exists())
             return imgPath;
-        saveCahceBitmapToFile(zoomImage(path), fileName);
+            saveCacheBitmapToFile(zoomImage(path), fileName);
         return imgPath;
     }
 

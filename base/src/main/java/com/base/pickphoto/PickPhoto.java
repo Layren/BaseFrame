@@ -43,7 +43,6 @@ public class PickPhoto implements PopWindows.PopWindowsViewOnCallk, View.OnClick
     public PickPhoto(Activity activity) {
         this.activity = activity;
         initPickPhoto();
-        list.add(new PhotoItem());
     }
 
     private void initPickPhoto() {
@@ -145,6 +144,8 @@ public class PickPhoto implements PopWindows.PopWindowsViewOnCallk, View.OnClick
     }
 
     public void setResult(int requestCode, int resultCode, Intent data) {
+        list.clear();
+        urls.clear();
         switch (requestCode) {
             case BPConfig.PIC_SELECT:
                 if (data == null)
@@ -178,6 +179,7 @@ public class PickPhoto implements PopWindows.PopWindowsViewOnCallk, View.OnClick
         }
         if (isTailor && resultCode != RequestCode.CROP_PHOTO_RESULT) {
             Intent intent = new Intent(activity, ClipImageActivity.class);
+            intent.putExtra("path", ((PhotoItem) list.get(list.size() - 1)).getUrl());
             intent.putExtra("config", config);
             activity.startActivityForResult(intent, RequestCode.CROP_PHOTO);
             return;
@@ -195,7 +197,7 @@ public class PickPhoto implements PopWindows.PopWindowsViewOnCallk, View.OnClick
         if (!urls.add(path)) return;
         PhotoItem item = new PhotoItem();
         item.setUrl(path);
-        list.add(list.size() - 1, item);
+        list.add(item);
 
     }
 

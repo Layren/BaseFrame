@@ -30,7 +30,6 @@
     <uses-permission android:name="android.permission.READ_CONTACTS" />
 
     <application>
-        <activity android:name=".pickphoto.AddPhotoActivity" />
         <activity android:name=".galleryview.ui.ImagePagerActivity" />
         <activity android:name=".pickphoto.PhotoAlbumActivity" />
         <activity android:name=".pickphoto.PhotoWallActivity" />

@@ -304,18 +304,14 @@ public class ClipViewLayout extends RelativeLayout {
         Rect rect = clipView.getClipRect(ratio);
 
         Bitmap cropBitmap = null;
-        Bitmap zoomedCropBitmap = null;
         try {
             cropBitmap = Bitmap.createBitmap(imageView.getDrawingCache(), rect.left, rect.top, rect.width(), rect.height());
         } catch (Exception e) {
             e.printStackTrace();
         }
-        if (cropBitmap != null) {
-            cropBitmap.recycle();
-        }
         // 释放资源
         imageView.destroyDrawingCache();
-        return zoomedCropBitmap;
+        return cropBitmap;
     }
 
 }

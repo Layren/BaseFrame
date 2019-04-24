@@ -16,6 +16,7 @@ import com.base.baseClass.BaseActivity;
 import com.base.interfaces.RefreshViewAdapterListener;
 import com.base.model.MultiModel;
 import com.base.pickphoto.PickPhoto;
+import com.base.util.ClipViewConfig;
 import com.base.util.PermissionManager;
 import com.base.view.ItemDecoration;
 import com.base.view.NestedRecyclerView;
@@ -62,7 +63,13 @@ public class MainActivity extends BaseActivity {
         if (!isStorage) {
             PermissionManager.granted(this, PermissionManager.STORAGE, 1);
         }
+        pickPhoto = new PickPhoto(this);
         findViewById(R.id.text_v).setOnClickListener(v -> {
+            pickPhoto.showMenuTailor(psr -> {
+                System.out.println(psr.getUrls().get(0));
+            }, new ClipViewConfig(3, 20, 0.8f));
+//            pickPhoto.showMenu(psr ->
+//                    System.out.println(psr.getUrls()));
         });
         recyclerView.setMultiAdapter(((holder, item, itemType) -> {
             MultiItemMudle mudle = (MultiItemMudle) item;
@@ -144,7 +151,7 @@ public class MainActivity extends BaseActivity {
             }
         });
         extend.deployWebView(webView.getWebView());
-        webView.loadUrl("file:///android_asset/test.html");
+//        webView.loadUrl("file:///android_asset/test.html");
 
     }
 
