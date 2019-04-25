@@ -27,7 +27,7 @@ import java.util.LinkedHashSet;
 /**
  * 照片管理器
  */
-public class PickPhoto implements PopWindows.PopWindowsViewOnCallk, View.OnClickListener {
+public class PickPhoto implements PopWindows.PopWindowsViewOnCallBack, View.OnClickListener {
     private Activity activity;
     private PopWindows popSetAvatar;
 
