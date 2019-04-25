@@ -179,6 +179,7 @@ public class PickPhoto implements PopWindows.PopWindowsViewOnCallk, View.OnClick
         }
         if (isTailor && resultCode != RequestCode.CROP_PHOTO_RESULT) {
             Intent intent = new Intent(activity, ClipImageActivity.class);
+            if (list.isEmpty()) return;
             intent.putExtra("path", ((PhotoItem) list.get(list.size() - 1)).getUrl());
             intent.putExtra("config", config);
             activity.startActivityForResult(intent, RequestCode.CROP_PHOTO);

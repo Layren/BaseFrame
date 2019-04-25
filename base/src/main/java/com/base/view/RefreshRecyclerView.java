@@ -17,7 +17,6 @@ import com.base.interfaces.RefreshViewAdapterListener;
 import com.base.interfaces.RefreshViewMultiItemAdapterListener;
 import com.base.model.MultiModel;
 import com.chad.library.adapter.base.BaseQuickAdapter;
-import com.chad.library.adapter.base.entity.MultiItemEntity;
 import com.chad.library.adapter.base.loadmore.LoadMoreView;
 
 import java.util.List;
@@ -171,7 +170,10 @@ public class RefreshRecyclerView extends LinearLayout {
     }
 
     public void notifyDataSetChanged() {
-        adapter.notifyDataSetChanged();
+        if (adapter != null)
+            adapter.notifyDataSetChanged();
+        if (multiAdapter != null)
+            multiAdapter.notifyDataSetChanged();
     }
 
     public void setData(List<Object> list) {
@@ -215,19 +217,9 @@ public class RefreshRecyclerView extends LinearLayout {
     }
 
     public void removeData(Object object) {
-        if (object instanceof MultiItemEntity) {
-            for (int i = 0; i < multiAdapter.getData().size(); i++) {
-                if (object.equals(multiAdapter.getData().get(i))) {
-                    removeData(i);
-                }
-            }
-        } else {
-            for (int i = 0; i < adapter.getData().size(); i++) {
-                if (object.equals(adapter.getData().get(i))) {
-                    removeData(i);
-                }
-            }
-        }
+        if (multiAdapter != null) multiAdapter.getData().remove(object);
+        if (adapter != null) adapter.getData().remove(object);
+
     }
 
     //添加分割线

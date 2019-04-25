@@ -88,9 +88,13 @@ public class PopWindows {
     }
 
     public void close() {
-        if (popupWindow != null && popupWindow.isShowing()) {
+        if (isShowing()) {
             popupWindow.dismiss();
         }
+    }
+
+    public boolean isShowing() {
+        return popupWindow != null && popupWindow.isShowing();
     }
 
     public interface PopWindowsViewOnCallk {
