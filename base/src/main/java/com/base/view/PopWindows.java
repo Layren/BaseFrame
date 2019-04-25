@@ -6,7 +6,6 @@ import android.graphics.Rect;
 import android.os.Build;
 import android.support.annotation.LayoutRes;
 import android.view.Gravity;
-import android.view.MotionEvent;
 import android.view.View;
 import android.widget.PopupWindow;
 
@@ -28,20 +27,11 @@ public class PopWindows {
         this.layoutId = layoutId;
     }
 
-    public PopWindows initPopWindows(PopWindowsViewOnCallk popWindowsViewOnCallk) {
+    public PopWindows initPopWindows(PopWindowsViewOnCallBack popWindowsViewOnCallk) {
         popupWindowView = activity.getLayoutInflater().inflate(layoutId, null);
         popupWindow = new PopupWindow(popupWindowView, LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT, true);
         popupWindow.setBackgroundDrawable(activity.getResources().getDrawable(R.drawable.touming));
-        popupWindowView.setOnTouchListener(new View.OnTouchListener() {
-            @Override
-            public boolean onTouch(View v, MotionEvent event) {
-                if (popupWindow != null && popupWindow.isShowing()) {
-                    popupWindow.dismiss();
-                }
-                return false;
-            }
-
-        });
+        popupWindowView.setOnClickListener(view -> close());
         popWindowsViewOnCallk.initView(popupWindowView);
         return this;
     }
@@ -97,7 +87,7 @@ public class PopWindows {
         return popupWindow != null && popupWindow.isShowing();
     }
 
-    public interface PopWindowsViewOnCallk {
+    public interface PopWindowsViewOnCallBack {
         void initView(View view);
     }
 }
