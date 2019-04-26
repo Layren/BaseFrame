@@ -35,7 +35,7 @@ public class BPConfig {
     public static final String EXTRA_IMAGE_PATHTYPE = "path_type";
     public static final String HTTP_URL = "path_url";
     public static final String LOCAL_FILE = "path_file";
-    public static String cameraImgPath = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DCIM).getAbsolutePath() + "/Camera";
+    public static String cameraImgPath = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DCIM).getAbsolutePath() + "/Camera/";
 
 
     static {
