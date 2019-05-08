@@ -172,6 +172,16 @@ public class BPApplication extends Application {
     }
 
     /**
+     * 登录失效配置
+     * @param code 失效Code
+     * @param activity 登录失效跳转Activity
+     */
+    protected void setInvalidLogin(int code, Class<?> activity) {
+        BPConfig.invalidLogin = code;
+        BPConfig.LoginActivity = activity;
+    }
+
+    /**
      * 文件缓存地址
      */
     public static String getCachePath() {

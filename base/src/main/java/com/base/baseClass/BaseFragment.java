@@ -279,15 +279,15 @@ public abstract class BaseFragment extends ImmersionFragment
     }
 
     protected void immersionInit() {
-        if(((BaseActivity)getActivity()).isFragment)
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            if (getStatusBarView() != 0)
-                mImmersionBar.titleBar(getStatusBarView());
-            else
-                mImmersionBar.navigationBarColor(BPConfig.appThemeColorValue).fitsSystemWindows(true);
-            mImmersionBar.keyboardEnable(true)
-                    .init();
-        }
+        if (((BaseActivity) getActivity()).isFragment)
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                if (getStatusBarView() != 0)
+                    mImmersionBar.titleBar(getStatusBarView());
+                else
+                    mImmersionBar.navigationBarColor(BPConfig.appThemeColorValue).fitsSystemWindows(true);
+                mImmersionBar.keyboardEnable(true)
+                        .init();
+            }
     }
 
 
@@ -372,7 +372,13 @@ public abstract class BaseFragment extends ImmersionFragment
 
     @Override
     public void onCompleteData(Base base, int whichAPI) {
-
+        if (BPConfig.LoginActivity != null
+                && base.getCode() != null
+                && base.getCode().equals(BPConfig.invalidLogin + "")) {
+            checkDialog();
+            goActivity(BPConfig.LoginActivity);
+            return;
+        }
     }
 
 }

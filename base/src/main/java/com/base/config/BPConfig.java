@@ -6,6 +6,8 @@ import android.os.Environment;
 import com.base.BPApplication;
 
 public class BPConfig {
+
+
     private BPConfig() {
     }
 
@@ -23,6 +25,11 @@ public class BPConfig {
     //默认7天有效期
     public static long effectiveTime = 7 * 86400000l;
     public static String appplcaitonId;
+
+    //登录失效标识
+    public static int invalidLogin = -100;
+    //登录界面(用于登录失效跳转)
+    public static Class<?> LoginActivity = null;
 
     public static final int PIC_SELECT = 0x1101;
     public static final int PHOTO_ALBUM = 0x1102;

@@ -408,7 +408,13 @@ public abstract class BaseActivity extends AppCompatActivity implements SNReques
 
     @Override
     public void onCompleteData(Base base, int whichAPI) {
-
+        if (BPConfig.LoginActivity != null
+                && base.getCode() != null
+                && base.getCode().equals(BPConfig.invalidLogin + "")) {
+            checkDialog();
+            goActivity(BPConfig.LoginActivity);
+            return;
+        }
     }
 
 

@@ -2,7 +2,6 @@ package com.base.net;
 
 import com.base.BPApplication;
 import com.base.interfaces.SNRequestDataListener;
-import com.base.model.Base;
 import com.base.util.LogUtil;
 import com.google.gson.Gson;
 
@@ -50,7 +49,7 @@ public class MCBaseAPI extends SNNetAPI {
             this.base = gson.fromJson(response, type);
             this.base.setDatas(responseObj);
         } catch (Exception e) {
-            this.base = new Base();
+            this.base = gson.fromJson(response, type);
         }
         this.base.setResultMsg(response);
         LogUtil.printJson("API result", response, "whichAPI:" + whichAPI);
