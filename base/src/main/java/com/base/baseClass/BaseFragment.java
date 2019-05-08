@@ -378,6 +378,7 @@ public abstract class BaseFragment extends ImmersionFragment
                 && base.getCode().equals(BPConfig.invalidLogin + "")) {
             checkDialog();
             LoginManager.getInstance().clear();
+            showToast(base.getMsg());
             goActivity(BPConfig.LoginActivity);
             return;
         }

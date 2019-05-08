@@ -414,6 +414,7 @@ public abstract class BaseActivity extends AppCompatActivity implements SNReques
                 && base.getCode().equals(BPConfig.invalidLogin + "")) {
             checkDialog();
             LoginManager.getInstance().clear();
+            showToast(base.getMsg());
             goActivity(BPConfig.LoginActivity);
             return;
         }
