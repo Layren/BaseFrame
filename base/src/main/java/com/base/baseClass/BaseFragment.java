@@ -26,6 +26,7 @@ import com.base.model.MultiModel;
 import com.base.net.NetStateCheck;
 import com.base.util.CustomDialog;
 import com.base.util.DialogStringInfo;
+import com.base.util.LoginManager;
 import com.base.util.ToastAlone;
 import com.base.view.RefreshRecyclerView;
 import com.chad.library.adapter.base.BaseViewHolder;
@@ -376,6 +377,7 @@ public abstract class BaseFragment extends ImmersionFragment
                 && base.getCode() != null
                 && base.getCode().equals(BPConfig.invalidLogin + "")) {
             checkDialog();
+            LoginManager.getInstance().clear();
             goActivity(BPConfig.LoginActivity);
             return;
         }
