@@ -3,27 +3,15 @@ package com.layren.basedebug;
 
 import android.content.Intent;
 import android.graphics.Color;
-import android.media.SoundPool;
-import android.net.Uri;
-import android.util.Log;
-import android.webkit.JsResult;
-import android.webkit.ValueCallback;
-import android.webkit.WebChromeClient;
-import android.webkit.WebView;
+import android.os.Environment;
+import android.os.Handler;
+import android.os.Looper;
 
-import com.base.adapter.RefreshViewAdapter;
 import com.base.baseClass.BaseActivity;
-import com.base.interfaces.RefreshViewAdapterListener;
-import com.base.model.MultiModel;
 import com.base.pickphoto.PickPhoto;
-import com.base.util.ClipViewConfig;
-import com.base.util.PermissionManager;
 import com.base.view.ItemDecoration;
 import com.base.view.NestedRecyclerView;
 import com.base.view.RefreshRecyclerView;
-import com.base.web.ProgressWebView;
-import com.base.web.WebClient;
-import com.base.web.WebLoadListener;
 import com.chad.library.adapter.base.BaseViewHolder;
 
 import java.util.ArrayList;
@@ -41,10 +29,6 @@ public class MainActivity extends BaseActivity {
     RefreshRecyclerView recyclerView;
     @BindView(R.id.recyclers)
     NestedRecyclerView recyclerViews;
-    private SoundPool soundPool;
-    private int soundId;
-    @BindView(R.id.p_web_view)
-    ProgressWebView webView;
 
     private PickPhoto pickPhoto;
 
@@ -57,107 +41,54 @@ public class MainActivity extends BaseActivity {
 
     @Override
     protected void initView() {
-        Log.e("111111111", "1" + MainActivity.class);
-        Log.e("111111111", "2" + getClass());
-        boolean isStorage = PermissionManager.query(this, PermissionManager.STORAGE);
-        if (!isStorage) {
-            PermissionManager.granted(this, PermissionManager.STORAGE, 1);
-        }
-        pickPhoto = new PickPhoto(this);
-        findViewById(R.id.text_v).setOnClickListener(v -> {
-            pickPhoto.showMenuTailor(psr -> {
-                System.out.println(psr.getUrls().get(0));
-            }, new ClipViewConfig(3, 20, 0.8f));
-//            pickPhoto.showMenu(psr ->
-//                    System.out.println(psr.getUrls()));
-        });
-        recyclerView.setMultiAdapter(((holder, item, itemType) -> {
-            MultiItemMudle mudle = (MultiItemMudle) item;
-            switch (itemType) {
-                case 0:
-                    holder.setText(R.id.textRed, mudle.getText());
-                    break;
-                case 1:
-                    holder.setText(R.id.textBlue, mudle.getText());
-                    break;
-            }
-        }), R.layout.red, R.layout.blue);
+        setRecyclerViewAdapter(recyclerView, R.layout.red);
         recyclerView.addItemDecoration(new ItemDecoration(1, Color.BLUE));
-        List<Object> list = new ArrayList<>();
-        list.add("11111111");
-        list.add("12222222");
-        list.add("12333333");
-        list.add("12344444");
-        list.add("12345555");
-        list.add("12345666");
-        list.add("12345677 ");
-        List<MultiItemMudle> list2 = new ArrayList<>();
-        for (int i = 0; i < 11; i++) {
-            MultiItemMudle mudle = new MultiItemMudle();
-            if (i < 1 || i == 5) {
-                mudle.setItemType(0);
-                mudle.setSpanSize(3);
-            } else
-                mudle.setItemType(1);
-            mudle.setText("====" + i + "====");
-            list2.add(mudle);
-        }
-        recyclerView.setMulitData(list2);
-        recyclerView.setLoadMoreEnd();
-        RefreshViewAdapter adapter = new RefreshViewAdapter(R.layout.blue, new RefreshViewAdapterListener() {
+        recyclerView.setOnRefreshListener(new RefreshRecyclerView.OnRefreshListener() {
             @Override
-            public void setHolder(int layoutResId, BaseViewHolder holder, Object item) {
-                holder.setText(R.id.textBlue, (String) item);
-                holder.setBackgroundColor(R.id.textBlue, Color.WHITE);
-                holder.setTextColor(R.id.textBlue, Color.BLUE);
+            public void onRefresh() {
+                setData(0);
+            }
+
+            @Override
+            public void onLoadMore() {
+                setData(1);
             }
         });
-        recyclerViews.setAdapter(adapter);
-        recyclerViews.addItemDecoration(new ItemDecoration(1, Color.RED));
-        adapter.setNewData(list);
-        extend = new WebViewExtend(this);
-        pickPhoto = new PickPhoto(MainActivity.this);
+        recyclerView.setRefreshing(true);
+       String path= Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DCIM).getAbsolutePath();
+        System.out.println("aaaaaaa"+path);
+    }
 
+    int a;
+    int i;
 
-        extend.setLoadListener(new WebLoadListener() {
-            @Override
-            public void onLoadUrlStart() {
-
+    public void setData(int index) {
+        new Thread(() -> {
+            try {
+                Thread.sleep(2000);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
             }
-
-            @Override
-            public void onLoadUrlFinish() {
-
+            if (index == 0)
+                i = 0;
+            List<Object> list = new ArrayList<>();
+            a = i;
+            for (; i < a + 10; i++) {
+                list.add("Data:" + i);
             }
-
-            @Override
-            public void setProgressChanged(int progress) {
-
-            }
-        });
-        extend.setClient(new WebClient() {
-            @Override
-            public boolean onShowFileChooser(WebView webView, ValueCallback<Uri[]> filePathCallback, WebChromeClient.FileChooserParams fileChooserParams) {
-                MainActivity.this.filePathCallback = filePathCallback;
-                pickPhoto.albumSelect(psr -> extend.upLoadFiles(filePathCallback, psr.getUrls()));
-
-                return true;
-            }
-
-            @Override
-            public boolean onJsAlert(WebView view, String url, String message, JsResult result) {
-                Log.e("alert", url + "\n" + message);
-                return super.onJsAlert(view, url, message, result);
-            }
-        });
-        extend.deployWebView(webView.getWebView());
-//        webView.loadUrl("file:///android_asset/test.html");
+            System.out.println("===========:"+i);
+            new Handler(Looper.getMainLooper()).post(() -> {
+                if (index == 0)
+                    recyclerView.setData(list);
+                else if (i < 50)
+                    recyclerView.addData(list, true);
+                else recyclerView.addData(list, false);
+                recyclerView.setRefreshing(false);
+            });
+        }).start();
 
     }
 
-    private ValueCallback<Uri[]> filePathCallback;
-    private List<String> results = new ArrayList<>();
-    WebViewExtend extend;
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
@@ -166,18 +97,8 @@ public class MainActivity extends BaseActivity {
     }
 
     @Override
-    public void setHolder(BaseViewHolder holder, MultiModel item, int itemType) {
-        super.setHolder(holder, item, itemType);
-        MultiItemMudle mudle = (MultiItemMudle) item;
-        switch (itemType) {
-            case 0:
-                holder.setText(R.id.textRed, mudle.getText());
-                break;
-            case 1:
-                holder.setText(R.id.textBlue, mudle.getText());
-                break;
-        }
+    public void setHolder(BaseViewHolder holder, Object item) {
+        super.setHolder(holder, item);
+        holder.setText(R.id.textRed, item.toString());
     }
-
-
 }

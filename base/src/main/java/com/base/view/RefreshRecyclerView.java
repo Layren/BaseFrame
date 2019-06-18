@@ -144,18 +144,7 @@ public class RefreshRecyclerView extends LinearLayout {
         if (refreshing && listener != null) {
             listener.onRefresh();
         }
-        if (adapter != null)
-            adapter.setEnableLoadMore(true);
-        if (multiAdapter != null)
-            multiAdapter.setEnableLoadMore(true);
         reLayout.post(() -> reLayout.setRefreshing(refreshing));
-    }
-
-    public void setLoadMoreEnd() {
-        if (adapter != null)
-            adapter.setEnableLoadMore(false);
-        if (multiAdapter != null)
-            multiAdapter.setEnableLoadMore(false);
     }
 
     public void setLoadMoreView(LoadMoreView view) {
@@ -176,12 +165,24 @@ public class RefreshRecyclerView extends LinearLayout {
             multiAdapter.notifyDataSetChanged();
     }
 
-    public void setData(List<Object> list) {
+    public void setData(List<Object> list, boolean haveMore) {
         adapter.setNewData(list);
+        if (haveMore)
+            adapter.loadMoreComplete();
+        else
+            adapter.loadMoreEnd(true);
     }
 
-    public void addData(List<Object> list) {
+    public void setData(List<Object> list) {
+        setData(list, false);
+    }
+
+    public void addData(List<Object> list, boolean haveMore) {
         adapter.addData(list);
+        if (haveMore)
+            adapter.loadMoreComplete();
+        else
+            adapter.loadMoreEnd();
     }
 
     public Object getItem(int position) {
@@ -204,11 +205,23 @@ public class RefreshRecyclerView extends LinearLayout {
     }
 
     public void setMulitData(List<? extends MultiModel> list) {
-        multiAdapter.setNewData(list);
+        setMulitData(list, false);
     }
 
-    public void addMulitData(List<? extends MultiModel> list) {
+    public void setMulitData(List<? extends MultiModel> list, boolean haveMore) {
+        multiAdapter.setNewData(list);
+        if (haveMore) multiAdapter.loadMoreComplete();
+        else
+            multiAdapter.loadMoreEnd(true);
+
+    }
+
+    public void addMulitData(List<? extends MultiModel> list, boolean haveMore) {
         multiAdapter.addData(list);
+        if (haveMore)
+            multiAdapter.loadMoreComplete();
+        else
+            multiAdapter.loadMoreEnd();
     }
 
     public void removeData(int position) {

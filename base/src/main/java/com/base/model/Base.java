@@ -9,6 +9,7 @@ import java.util.List;
 public class Base<T> implements Serializable {
 
     private String code;// A0001表示成功，具体信息可以参照《API接口文档》
+    private String status;
     private String message;
     private String msg;
     private int totalPages;
@@ -33,6 +34,13 @@ public class Base<T> implements Serializable {
         this.msg = msg;
     }
 
+    public String getStatus() {
+        return status;
+    }
+
+    public void setStatus(String status) {
+        this.status = status;
+    }
 
     public String getCode() {
         return code;
